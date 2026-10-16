@@ -1,5 +1,6 @@
 ---
 import { ui, paths, type Lang } from '../i18n';
+import SubscribeForm from './SubscribeForm.astro';
 import { getPosts, slugOf } from '../lib/posts';
 
 const { lang } = Astro.props as { lang: Lang };
@@ -17,7 +18,7 @@ const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
   <div class="card">
     <h2>{t.subscribeTitle}</h2>
     <p>{t.subscribeBlurb}</p>
-    <a class="btn" href={p.subscribe}>{t.subscribeButton}</a>
+    <SubscribeForm lang={lang} />
   </div>
 
   {latest.length > 0 && (

@@ -173,3 +173,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .h-title, [data-lang="en"] .h-title { font-size: 28px; }
   .tl { flex-basis: 20px; }
 }
+
+.nav-link { white-space: nowrap; }
+.sub-form { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.sub-form input[type="email"] {
+  flex: 1 1 160px; min-width: 0; padding: 10px 12px; font: inherit; font-size: 15px;
+  color: var(--ink); background: var(--bg, transparent); border: 1px solid var(--ink); border-radius: 4px;
+}
+.sub-form button { cursor: pointer; font: inherit; }

@@ -3,6 +3,7 @@ import { getEntry, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import { ui, paths, type Lang } from '../i18n';
 import { SITE } from '../config';
+import SubscribeForm from './SubscribeForm.astro';
 
 interface Props {
   lang: Lang;
@@ -39,9 +40,7 @@ if (kind === 'about') {
       ) : (
         <div class="prose">
           <p>{t.subscribeBlurb}</p>
-          {SITE.substackUrl
-            ? <p><a class="btn" href={SITE.substackUrl} rel="noopener">{t.subscribeButton}</a></p>
-            : <p>{t.subscribeSoon}</p>}
+          <SubscribeForm lang={lang} />
           {SITE.contactEmail && (
             <>
               <h2>{t.contactTitle}</h2>

@@ -1,0 +1,20 @@
+---
+import { ui, type Lang } from '../i18n';
+import { SITE } from '../config';
+const { lang } = Astro.props as { lang: Lang };
+const t = ui[lang];
+const { provider, id } = SITE.newsletter;
+const action = provider === 'buttondown'
+  ? `https://buttondown.com/api/emails/embed-subscribe/${id}`
+  : `https://${id}.substack.com/subscribe`;
+const method = provider === 'buttondown' ? 'post' : 'get';
+---
+{id ? (
+  <form class="sub-form" action={action} method={method} target="_blank">
+    <input type="email" name="email" required placeholder={t.emailPlaceholder} aria-label={t.emailPlaceholder} autocomplete="email" />
+    {provider === 'buttondown' && <input type="hidden" name="embed" value="1" />}
+    <button class="btn" type="submit">{t.subscribeButton}</button>
+  </form>
+) : (
+  <p>{t.subscribeSoon}</p>
+)}

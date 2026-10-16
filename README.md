@@ -25,7 +25,7 @@ Commit the file to `main`. Cloudflare Pages and GitHub Pages rebuild automatical
 
 ## Settings
 
-- `src/config.ts`: your Substack address and contact email.
+- `src/config.ts`: the email-subscription service (Substack or Buttondown) and contact email.
 - `src/content/pages/zh/about.md` and `src/content/pages/en/about.md`: the About pages.
 - `src/i18n.ts`: menu words, welcome note and other fixed text for both languages.
 
