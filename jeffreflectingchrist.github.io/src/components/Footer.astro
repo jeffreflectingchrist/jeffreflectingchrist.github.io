@@ -1,9 +1,0 @@
----
-import { ui, type Lang } from '../i18n';
-const { lang } = Astro.props as { lang: Lang };
-const t = ui[lang];
----
-<footer class="site-footer pad">
-  <span>{t.copyright}</span>
-  <span class="footer-tag">{t.tagline}</span>
-</footer>
