@@ -16,7 +16,7 @@ export const ui = {
     latest: '最新灵修',
     readMore: '继续阅读 →',
     readTime: (n: number) => `${n} 分钟阅读`,
-    welcome: '欢迎来到辉映基督。这里的灵修与文章，是写给在日常中寻求神的人。',
+    welcome: '欢迎来到辉映基督。这里的默想是为你而写，愿你在日常生活中反映基督的荣耀.',
     author: '杰辉',
     subscribeTitle: '订阅',
     subscribeBlurb: '新的灵修与文章发布时，寄到你的邮箱。',
@@ -45,7 +45,7 @@ export const ui = {
     readMore: 'Continue reading →',
     readTime: (n: number) => `${n} min read`,
     welcome:
-      'Welcome to jeffreflectingchrist. These devotions and articles are written for people seeking God in everyday life.',
+      'Welcome to jeffreflectingchrist. These reflections are written for you as you seek to reflect Christ in everyday life.',
     author: 'Jeff',
     subscribeTitle: 'Subscribe',
     subscribeBlurb: 'Get new devotions and articles by email.',
