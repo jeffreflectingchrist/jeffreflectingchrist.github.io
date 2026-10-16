@@ -186,3 +186,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   color: var(--ink); background: var(--bg, transparent); border: 1px solid var(--ink); border-radius: 4px;
 }
 .sub-form button { cursor: pointer; font: inherit; }
+
+/* Owner-only edit button (hidden unless unlocked in the owner's own browser) */
+.owner-edit[hidden] { display: none; }
+.owner-edit { margin: -8px 0 24px; }
+.owner-edit a { display: inline-block; padding: 6px 16px; border: 1.5px solid var(--accent); border-radius: 999px; color: var(--accent); font-size: 15px; text-decoration: none; }
+.owner-edit a:hover { background: var(--accent); color: var(--bg, #fff); }

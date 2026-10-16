@@ -12,6 +12,8 @@ interface Props {
 const { lang, kind } = Astro.props;
 const t = ui[lang];
 const other: Lang = lang === 'zh' ? 'en' : 'zh';
+const editUrl = `https://github.com/jeffreflectingchrist/jeffreflectingchrist.github.io/edit/main/src/content/pages/${lang}/about.md`;
+const editLabel = lang === 'zh' ? '✎ 编辑此页' : '✎ Edit this page';
 
 let Content: any = null;
 let heading = t.nav.subscribe;
@@ -35,6 +37,11 @@ if (kind === 'about') {
   <div class="pad">
     <main class="post-wrap">
       <h1 class="h-title">{heading}</h1>
+      {kind === 'about' && (
+        <p class="owner-edit" id="owner-edit" hidden>
+          <a href={editUrl} target="_blank" rel="noopener">{editLabel}</a>
+        </p>
+      )}
       {kind === 'about' ? (
         <div class="prose">{Content && <Content />}</div>
       ) : (
@@ -53,3 +60,18 @@ if (kind === 'about') {
     </main>
   </div>
 </Base>
+{kind === 'about' && (
+  <script is:inline>
+    (function () {
+      try {
+        var q = new URLSearchParams(location.search).get('edit');
+        if (q === '1') localStorage.setItem('jrc-owner', '1');
+        if (q === 'off') localStorage.removeItem('jrc-owner');
+        if (localStorage.getItem('jrc-owner') === '1') {
+          var el = document.getElementById('owner-edit');
+          if (el) el.hidden = false;
+        }
+      } catch (e) {}
+    })();
+  </script>
+)}
