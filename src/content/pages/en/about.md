@@ -2,6 +2,8 @@
 title: About
 ---
 
-I'm Jeff. This is where I write down my Bible reflections and study, in the hope that readers come to know Christ more in everyday life.
+I’m Jeff, a full-time pastor in Malaysia. I'm married with a son.
 
-[Add a short introduction about yourself here.]
+I have a God who loves me deeply. Jeff Reflecting Christ is where I record my meditations on him and my responses to him.
+
+May what is written here encourage us to keep reflecting on Christ to reflect Christ in our daily walk.
