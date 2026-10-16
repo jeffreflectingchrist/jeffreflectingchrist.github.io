@@ -4,28 +4,22 @@ A bilingual blog (Chinese at `/`, English at `/en/`) built with Astro.
 
 ## Adding a post
 
-Create a Markdown file in `src/content/posts/zh/` (Chinese) or `src/content/posts/en/` (English).
-Use an English file name with dashes, for example `grace-enough.md`.
-If the same file name exists in both folders, the language button on that post jumps to its translation.
+Write and publish in Substack. The site reads both Substacks and shows the posts:
 
-```md
----
-title: Your title
-date: 2026-10-20
-category: devotion        # devotion or article
-summary: One or two lines shown on the list pages.
-cover: illustration       # optional: 'illustration' or an image path like /images/photo.jpg
-draft: false              # optional: true hides the post
----
+- Chinese posts: `huiyingjidu.substack.com` (shown at `/`)
+- English posts: `jeffreflectingchrist.substack.com` (shown at `/en/`)
 
-Your text here.
-```
+In Substack, add a tag to choose the category: `灵修` or `文章` (Chinese), `devotion` or `article` (English).
+A post with no matching tag is shown under Articles. Free posts only; paid posts are skipped.
+The two languages are separate and are not linked as translations.
 
-Commit the file to `main`. Cloudflare Pages and GitHub Pages rebuild automatically.
+New posts appear on the site within about an hour (GitHub Actions rebuilds on a schedule).
+Cloudflare Pages also needs a deploy hook: in Cloudflare Pages, Settings, Builds, add a deploy hook,
+then in GitHub (repo Settings, Secrets and variables, Actions) save its address as `CLOUDFLARE_DEPLOY_HOOK`.
 
 ## Settings
 
-- `src/config.ts`: the email-subscription service (Substack or Buttondown) and contact email.
+- `src/config.ts`: the two Substack names, the tag names, and the contact email.
 - `src/content/pages/zh/about.md` and `src/content/pages/en/about.md`: the About pages.
 - `src/i18n.ts`: menu words, welcome note and other fixed text for both languages.
 

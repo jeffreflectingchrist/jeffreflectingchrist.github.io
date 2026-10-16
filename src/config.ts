@@ -1,11 +1,19 @@
 // Fill these in when you are ready. Empty values are simply not shown.
 export const SITE = {
-  // Email subscription. Pick ONE service and fill in its name:
-  //   provider: 'substack'    -> id is your Substack name, e.g. 'jeffreflectingchrist'
-  //                              (your address is jeffreflectingchrist.substack.com)
-  //   provider: 'buttondown'  -> id is your Buttondown username
-  // Leave id empty to show "opening soon".
-  newsletter: { provider: 'substack' as 'substack' | 'buttondown', id: 'jeffreflectingchrist' },
+  // Two Substacks, one per language. Posts are pulled from them automatically
+  // (every Substack publication has a feed at <name>.substack.com/feed).
+  //   zh -> Chinese posts and the Chinese subscribe box
+  //   en -> English posts and the English subscribe box
+  substack: {
+    zh: 'huiyingjidu',            // huiyingjidu.substack.com
+    en: 'jeffreflectingchrist',   // jeffreflectingchrist.substack.com
+  },
+  // In Substack, add one of these tags to a post to choose its category.
+  // A post with none of these tags is shown under Articles.
+  tags: {
+    zh: { devotion: '灵修', article: '文章' },
+    en: { devotion: 'devotion', article: 'article' },
+  },
   // Your contact email, for example 'hello@example.com'
   contactEmail: '',
 };

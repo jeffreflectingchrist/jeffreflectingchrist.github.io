@@ -158,7 +158,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .prose blockquote { margin: 1.5em 0; padding: 20px 24px; background: var(--card); border-radius: 16px; }
 .prose blockquote p:last-child { margin-bottom: 0; }
 .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 4px; }
-.prose img { max-width: 100%; border-radius: 12px; }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; }
+/* Parts of Substack posts that make no sense on this site */
+.prose .subscription-widget-wrap, .prose .subscription-widget-wrap-editor, .prose .button-wrapper, .prose .share-widget { display: none; }
+.prose figure { margin: 1.5em 0; }
+.prose figcaption { font-size: 15px; opacity: 0.7; text-align: center; margin-top: 8px; }
+.prose hr { border: 0; border-top: 1px solid var(--card); margin: 2em 0; }
 .prose ul, .prose ol { padding-left: 1.4em; }
 
 /* Footer */

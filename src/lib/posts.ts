@@ -4,8 +4,8 @@ import type { Lang, Category } from '../i18n';
 
 export type Post = CollectionEntry<'posts'>;
 
-// Files live in src/content/posts/zh/ and src/content/posts/en/.
-// The same file name in both folders means "this is a translation of that".
+// Posts come from two Substacks: Chinese ids start with 'zh/', English with 'en/'.
+// The two languages are kept separate; posts are not linked as translations.
 export const langOf = (p: Post): Lang => (p.id.startsWith('en/') ? 'en' : 'zh');
 export const slugOf = (p: Post) => p.id.split('/').slice(1).join('/');
 
@@ -14,11 +14,6 @@ export async function getPosts(lang: Lang, category?: Category) {
   return all
     .filter((p) => !category || p.data.category === category)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-}
-
-export async function hasTranslation(slug: string, lang: Lang) {
-  const all = await getCollection('posts');
-  return all.some((p) => langOf(p) === lang && slugOf(p) === slug && !p.data.draft);
 }
 
 export function readMinutes(body: string, lang: Lang) {

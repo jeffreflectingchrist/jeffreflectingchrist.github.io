@@ -1,25 +1,19 @@
 ---
 import { render } from 'astro:content';
 import PostPage from '../../../components/PostPage.astro';
-import { getPosts, slugOf, hasTranslation } from '../../../lib/posts';
+import { getPosts, slugOf } from '../../../lib/posts';
 import { paths } from '../../../i18n';
 
 export async function getStaticPaths() {
   const posts = await getPosts('en');
-  return Promise.all(
-    posts.map(async (post) => ({
-      params: { slug: slugOf(post) },
-      props: { post, translated: await hasTranslation(slugOf(post), 'zh') },
-    })),
-  );
+  return posts.map((post) => ({ params: { slug: slugOf(post) }, props: { post } }));
 }
 
-const { post, translated } = Astro.props;
+const { post } = Astro.props;
 const slug = slugOf(post);
 const { Content } = await render(post);
-const alternates = translated
-  ? { zh: paths.zh.post(slug), en: paths.en.post(slug) }
-  : { en: paths.en.post(slug) };
-const switchHref = translated ? paths.zh.post(slug) : paths.zh.home;
+// The two languages are separate: the language button goes to the other home page.
+const alternates = { en: paths.en.post(slug) };
+const switchHref = paths.zh.home;
 ---
 <PostPage lang="en" post={post} Content={Content} switchHref={switchHref} alternates={alternates} />

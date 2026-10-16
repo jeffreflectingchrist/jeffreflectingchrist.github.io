@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # Every hour, so new Substack posts appear on the site by themselves.
+    - cron: '23 * * * *'
 
 permissions:
   contents: read
@@ -31,3 +34,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Pushing to main already rebuilds Cloudflare Pages by itself. For the hourly
+  # rebuild it needs a "deploy hook" saved as a secret named CLOUDFLARE_DEPLOY_HOOK.
+  cloudflare:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask Cloudflare Pages to rebuild
+        env:
+          HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$HOOK" ]; then
+            curl -fsS -X POST "$HOOK"
+          else
+            echo "No CLOUDFLARE_DEPLOY_HOOK secret set; skipping."
+          fi
