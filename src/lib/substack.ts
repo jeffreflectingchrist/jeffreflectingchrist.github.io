@@ -53,8 +53,34 @@ function summaryOf(given: string | undefined, html: string, lang: Lang) {
   return text.length > max ? text.slice(0, max).trimEnd() + '…' : text;
 }
 
-// Preferred route: Substack's archive list, which includes every post and its tags.
-async function fromArchive(base: string, lang: Lang): Promise<Raw[]> {
+// Fetches one post (body and tags) by its address ending.
+async function fetchPost(base: string, slug: string, lang: Lang, listed?: any): Promise<Raw | null> {
+  const post = JSON.parse(await getText(`${base}/api/v1/posts/${slug}`));
+  if ((post.audience ?? 'everyone') !== 'everyone') return null; // free posts only
+  const html: string = post.body_html ?? '';
+  const tags = (post.postTags ?? post.post_tags ?? listed?.postTags ?? listed?.post_tags ?? []).map(tagName);
+  return {
+    slug,
+    title: (post.title ?? listed?.title ?? '').trim(),
+    date: post.post_date ?? listed?.post_date,
+    summary: summaryOf(post.subtitle ?? listed?.subtitle ?? listed?.description, html, lang),
+    cover: post.cover_image ?? listed?.cover_image ?? undefined,
+    html,
+    tags,
+  };
+}
+
+async function fetchPosts(base: string, slugs: string[], lang: Lang, listed: Map<string, any>): Promise<Raw[]> {
+  const out: Raw[] = [];
+  for (let i = 0; i < slugs.length; i += 5) {
+    const chunk = await Promise.all(slugs.slice(i, i + 5).map((s) => fetchPost(base, s, lang, listed.get(s))));
+    out.push(...chunk.filter((p): p is Raw => p !== null));
+  }
+  return out;
+}
+
+// Route 1: Substack's list of every post.
+async function listFromApi(base: string): Promise<Map<string, any>> {
   const items: any[] = [];
   for (let offset = 0; ; offset += 50) {
     const page = JSON.parse(await getText(`${base}/api/v1/archive?sort=new&limit=50&offset=${offset}`));
@@ -62,31 +88,17 @@ async function fromArchive(base: string, lang: Lang): Promise<Raw[]> {
     items.push(...page);
     if (page.length < 50) break;
   }
-  const free = items.filter((i) => i.slug && (i.audience ?? 'everyone') === 'everyone');
-  const out: Raw[] = [];
-  for (let i = 0; i < free.length; i += 5) {
-    const chunk = await Promise.all(
-      free.slice(i, i + 5).map(async (item) => {
-        const post = JSON.parse(await getText(`${base}/api/v1/posts/${item.slug}`));
-        const html: string = post.body_html ?? '';
-        const tags = (post.postTags ?? post.post_tags ?? item.postTags ?? item.post_tags ?? []).map(tagName);
-        return {
-          slug: item.slug as string,
-          title: (post.title ?? item.title ?? '').trim(),
-          date: post.post_date ?? item.post_date,
-          summary: summaryOf(post.subtitle ?? item.subtitle ?? item.description, html, lang),
-          cover: post.cover_image ?? item.cover_image ?? undefined,
-          html,
-          tags,
-        } as Raw;
-      }),
-    );
-    out.push(...chunk);
-  }
-  return out;
+  return new Map(items.filter((i) => i.slug).map((i) => [i.slug as string, i]));
 }
 
-// Backup route: the public feed (shows only the most recent posts).
+// Route 2: the public Archive page. Substack sometimes lags in updating route 1 and the feed.
+async function listFromArchivePage(base: string): Promise<Map<string, any>> {
+  const html = await getText(`${base}/archive?sort=new`);
+  const slugs = [...html.matchAll(/\/p\/([A-Za-z0-9_%-]+)/g)].map((m) => m[1]);
+  return new Map([...new Set(slugs)].map((s) => [s, undefined]));
+}
+
+// Route 3: the public feed (shows only the most recent posts).
 async function fromFeed(base: string, lang: Lang): Promise<Raw[]> {
   const xml = await getText(`${base}/feed`);
   const doc = new XMLParser({ ignoreAttributes: false, parseTagValue: false }).parse(xml);
@@ -124,12 +136,26 @@ export function substackLoader(): Loader {
         const name = SITE.substack[lang];
         if (!name) continue;
         const base = `https://${name}.substack.com`;
-        let posts: Raw[];
-        try {
-          posts = await fromArchive(base, lang);
-        } catch (err) {
-          logger.warn(`${name}: archive list unavailable (${(err as Error).message}); using the feed instead.`);
-          posts = await fromFeed(base, lang);
+        let posts: Raw[] = [];
+        const routes: Array<[string, () => Promise<Raw[]>]> = [
+          ['archive list', async () => {
+            const listed = await listFromApi(base);
+            return fetchPosts(base, [...listed.keys()], lang, listed);
+          }],
+          ['archive page', async () => {
+            const listed = await listFromArchivePage(base);
+            return fetchPosts(base, [...listed.keys()], lang, listed);
+          }],
+          ['feed', () => fromFeed(base, lang)],
+        ];
+        for (const [label, run] of routes) {
+          try {
+            posts = await run();
+            if (posts.length > 0) break;
+            logger.warn(`${name}: ${label} had no posts; trying the next route.`);
+          } catch (err) {
+            logger.warn(`${name}: ${label} unavailable (${(err as Error).message}); trying the next route.`);
+          }
         }
         logger.info(`${name}: ${posts.length} post(s)`);
         for (const p of posts) {
