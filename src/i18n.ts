@@ -4,7 +4,7 @@ export type Category = 'devotion' | 'article';
 export const ui = {
   zh: {
     siteName: '辉映基督',
-    tagline: '圣经灵修与文章',
+    tagline: '默想基督的荣耀，反映基督的光辉',
     description: '圣经灵修与文章，写给在日常中寻求神的人。',
     htmlLang: 'zh-Hans',
     otherHtmlLang: 'en',
@@ -32,7 +32,7 @@ export const ui = {
   },
   en: {
     siteName: 'Jeff Reflecting Christ',
-    tagline: 'Bible devotions & articles',
+    tagline: 'Reflecting on Christ to reflect Christ',
     description: 'Bible devotions and articles for people seeking God in everyday life.',
     htmlLang: 'en',
     otherHtmlLang: 'zh-Hans',
