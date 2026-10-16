@@ -1,0 +1,56 @@
+---
+import { getEntry, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { ui, paths, type Lang } from '../i18n';
+import { SITE } from '../config';
+
+interface Props {
+  lang: Lang;
+  kind: 'about' | 'subscribe';
+}
+const { lang, kind } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === 'zh' ? 'en' : 'zh';
+
+let Content: any = null;
+let heading = t.nav.subscribe;
+if (kind === 'about') {
+  const entry = await getEntry('pages', `${lang}/about`);
+  if (entry) {
+    Content = (await render(entry)).Content;
+    heading = entry.data.title;
+  } else {
+    heading = t.nav.about;
+  }
+}
+---
+<Base
+  lang={lang}
+  title={heading}
+  active={kind}
+  switchHref={paths[other][kind]}
+  alternates={{ zh: paths.zh[kind], en: paths.en[kind] }}
+>
+  <div class="pad">
+    <main class="post-wrap">
+      <h1 class="h-title">{heading}</h1>
+      {kind === 'about' ? (
+        <div class="prose">{Content && <Content />}</div>
+      ) : (
+        <div class="prose">
+          <p>{t.subscribeBlurb}</p>
+          {SITE.substackUrl
+            ? <p><a class="btn" href={SITE.substackUrl} rel="noopener">{t.subscribeButton}</a></p>
+            : <p>{t.subscribeSoon}</p>}
+          {SITE.contactEmail && (
+            <>
+              <h2>{t.contactTitle}</h2>
+              <p>{t.contactBlurb}</p>
+              <p><a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a></p>
+            </>
+          )}
+        </div>
+      )}
+    </main>
+  </div>
+</Base>

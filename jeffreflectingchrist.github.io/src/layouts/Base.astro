@@ -1,0 +1,66 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ui, paths, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  active?: string;
+  switchHref: string;
+  alternates?: { zh?: string; en?: string };
+  ogType?: string;
+}
+const { lang, title, description, active, switchHref, alternates, ogType = 'website' } = Astro.props;
+const t = ui[lang];
+const pageTitle = title ? `${title} | ${t.siteName}` : `${t.siteName} · ${t.tagline}`;
+const desc = description ?? t.description;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const abs = (href: string) => new URL(href, Astro.site).href;
+const fonts =
+  lang === 'zh'
+    ? 'family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400'
+    : 'family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=IBM+Plex+Mono:wght@400';
+---
+<!doctype html>
+<html lang={t.htmlLang} data-lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical.href} />
+    {alternates?.zh && <link rel="alternate" hreflang="zh-Hans" href={abs(alternates.zh)} />}
+    {alternates?.en && <link rel="alternate" hreflang="en" href={abs(alternates.en)} />}
+    {alternates?.zh && <link rel="alternate" hreflang="x-default" href={abs(alternates.zh)} />}
+    <link rel="alternate" type="application/rss+xml" title={t.siteName} href={paths[lang].rss} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:site_name" content={t.siteName} />
+    <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={`https://fonts.googleapis.com/css2?${fonts}&display=swap`} />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <Header lang={lang} active={active} switchHref={switchHref} />
+      <slot />
+      <Footer lang={lang} />
+    </div>
+  </body>
+</html>
