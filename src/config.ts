@@ -5,7 +5,7 @@ export const SITE = {
   //                              (your address is jeffreflectingchrist.substack.com)
   //   provider: 'buttondown'  -> id is your Buttondown username
   // Leave id empty to show "opening soon".
-  newsletter: { provider: 'substack' as 'substack' | 'buttondown', id: '' },
+  newsletter: { provider: 'substack' as 'substack' | 'buttondown', id: 'jeffreflectingchrist' },
   // Your contact email, for example 'hello@example.com'
   contactEmail: '',
 };
