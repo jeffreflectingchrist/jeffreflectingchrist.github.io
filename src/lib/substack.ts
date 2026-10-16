@@ -2,6 +2,7 @@ import type { Loader } from 'astro/loaders';
 import { XMLParser } from 'fast-xml-parser';
 import { readFile } from 'node:fs/promises';
 import { SITE } from '../config';
+import { dropLeadingCover } from './dedupe';
 
 type Lang = 'zh' | 'en';
 type Category = 'devotion' | 'article';
@@ -171,11 +172,12 @@ export function substackLoader(): Loader {
               draft: false,
             },
           });
+          const html = dropLeadingCover(p.html, p.cover);
           store.set({
             id,
             data,
-            body: toText(p.html),
-            rendered: { html: p.html },
+            body: toText(html),
+            rendered: { html },
             digest: generateDigest(p.html + p.title),
           });
         }
