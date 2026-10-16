@@ -1,0 +1,36 @@
+---
+import Illustration from './Illustration.astro';
+import { ui, paths, formatDate, type Lang } from '../i18n';
+import { slugOf, readMinutes, type Post } from '../lib/posts';
+
+interface Props {
+  post: Post;
+  lang: Lang;
+}
+const { post, lang } = Astro.props;
+const t = ui[lang];
+const href = paths[lang].post(slugOf(post));
+const mins = readMinutes(post.body ?? '', lang);
+const cover = post.data.cover;
+---
+<article class="entry">
+  <div class="tl">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 C18 2.5 21.5 7 21 12.5 C20.5 18 16 21.5 11 21 C5.5 20.5 2.5 16 3 11 C3.5 6 7.5 3.3 12 3 Z" fill="none" stroke="var(--sun)" stroke-width="2"/></svg>
+    <div class="tl-line"></div>
+  </div>
+  <div class="entry-body">
+    <h2 class="h-title"><a href={href}>{post.data.title}</a></h2>
+    <div class="meta">
+      <span class="pill">{formatDate(post.data.date, lang)}</span>
+      <span class="chip">{t.categories[post.data.category]}</span>
+      <span class="readtime">{t.readTime(mins)}</span>
+    </div>
+    {cover && (
+      <div class="cover">
+        {cover === 'illustration' ? <Illustration /> : <img src={cover} alt="" loading="lazy" />}
+      </div>
+    )}
+    <p class="excerpt">{post.data.summary}</p>
+    <a class="read-more" href={href}>{t.readMore}</a>
+  </div>
+</article>
