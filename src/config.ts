@@ -16,4 +16,7 @@ export const SITE = {
   },
   // Your contact email, for example 'hello@example.com'
   contactEmail: '',
+  // Google Search Console ownership code: only the content="..." value of the
+  // google-site-verification tag. Not a secret. Empty = no tag.
+  googleVerification: '',
 };

@@ -61,10 +61,26 @@ const toText = (html: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+// Substack's subscribe box text ("Thanks for reading … Subscribe …").
+const SUBSCRIBE_JUNK = /thanks for reading|subscribe for free|感谢阅读|免费订阅/i;
+
+// Plain text of the post's own paragraphs only: leaves out headings, captions,
+// quotes, buttons and Substack's subscribe and share boxes.
+function bodyText(html: string) {
+  const cleaned = html
+    .replace(/<(script|style|figcaption|blockquote|h[1-6])[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<div[^>]*class="[^"]*(subscription-widget|button-wrapper|share|captioned-button)[^"]*"[\s\S]*?<\/div>\s*<\/div>/gi, ' ');
+  const paras = [...cleaned.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((m) => toText(m[1]))
+    .filter((p) => p && !SUBSCRIBE_JUNK.test(p));
+  return (paras.length ? paras.join(' ') : toText(cleaned)).replace(/\s+/g, ' ').trim();
+}
+
 function summaryOf(given: string | undefined, html: string, lang: Lang) {
   const s = (given ?? '').trim();
-  if (s) return s;
-  const text = toText(html);
+  // Use the post's subtitle when it is real text, not Substack's auto summary with the subscribe line.
+  if (s && !SUBSCRIBE_JUNK.test(s)) return s;
+  const text = bodyText(html);
   const max = lang === 'zh' ? 90 : 180;
   return text.length > max ? text.slice(0, max).trimEnd() + '…' : text;
 }
