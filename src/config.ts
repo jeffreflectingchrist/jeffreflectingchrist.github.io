@@ -18,5 +18,5 @@ export const SITE = {
   contactEmail: '',
   // Google Search Console ownership code: only the content="..." value of the
   // google-site-verification tag. Not a secret. Empty = no tag.
-  googleVerification: '',
+  googleVerification: 'zQd3q7tXlGWuczoyOG0j1BJmcL9drtrAVgNO9F6PO3o',
 };
