@@ -4,9 +4,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      require_hook:
+        description: 'Fail if the Cloudflare deploy hook secret is missing (a check)'
+        type: boolean
+        default: false
   schedule:
-    # Every hour, so new Substack posts appear on the site by themselves.
-    - cron: '23 * * * *'
+    # A backstop only: every 6 hours, ask Cloudflare to rebuild. New Substack posts
+    # normally trigger a rebuild much sooner (see the Substack watcher).
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: read
@@ -14,7 +20,10 @@ permissions:
   id-token: write
 
 jobs:
+  # GitHub's servers are turned away by Substack, so this backup site cannot read posts
+  # and is built only when the code changes, never on the timer.
   build:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
@@ -23,8 +32,10 @@ jobs:
         uses: withastro/action@v6
         env:
           SITE_URL: 'https://jeffreflectingchrist.github.io'
+          SUBSTACK_ALLOW_EMPTY: '1'
 
   deploy:
+    if: github.event_name != 'schedule'
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -35,8 +46,8 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v5
 
-  # Pushing to main already rebuilds Cloudflare Pages by itself. For the hourly
-  # rebuild it needs a "deploy hook" saved as a secret named CLOUDFLARE_DEPLOY_HOOK.
+  # Pushing to main already rebuilds Cloudflare Pages by itself. For the timer and for
+  # manual runs it needs a "deploy hook" saved as a secret named CLOUDFLARE_DEPLOY_HOOK.
   cloudflare:
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
@@ -44,9 +55,13 @@ jobs:
       - name: Ask Cloudflare Pages to rebuild
         env:
           HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
+          REQUIRE: ${{ inputs.require_hook }}
         run: |
           if [ -n "$HOOK" ]; then
             curl -fsS -X POST "$HOOK"
+          elif [ "$REQUIRE" = "true" ]; then
+            echo "The CLOUDFLARE_DEPLOY_HOOK secret is missing."
+            exit 1
           else
             echo "No CLOUDFLARE_DEPLOY_HOOK secret set; skipping."
           fi

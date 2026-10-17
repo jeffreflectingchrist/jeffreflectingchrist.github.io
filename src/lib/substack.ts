@@ -166,6 +166,7 @@ export function substackLoader(): Loader {
           }],
           ['feed', () => fromFeed(base, lang)],
         ];
+        let failures = 0;
         for (const [label, run] of routes) {
           try {
             posts = await run();
@@ -176,6 +177,7 @@ export function substackLoader(): Loader {
             REPORT.push(`${name} / ${label}: answered, but 0 posts`);
             logger.warn(`${name}: ${label} had no posts; trying the next route.`);
           } catch (err) {
+            failures++;
             REPORT.push(`${name} / ${label}: FAILED - ${(err as Error).message}`);
             logger.warn(`${name}: ${label} unavailable (${(err as Error).message}); trying the next route.`);
           }
@@ -183,6 +185,14 @@ export function substackLoader(): Loader {
         logger.info(`${name}: ${posts.length} post(s)`);
         REPORT.push(`${name}: ${posts.length} post(s) on the site`);
         await writeFile('.build-report.txt', REPORT.join('\n') + '\n').catch(() => {});
+        // If Substack could not be read at all, stop the build. The site that is already
+        // live stays as it is, instead of being replaced by an empty one.
+        if (posts.length === 0 && failures === routes.length && !process.env.SUBSTACK_ALLOW_EMPTY) {
+          throw new Error(
+            `Could not read ${name}.substack.com (all ${routes.length} routes failed). ` +
+              'Stopping so the live site keeps its current posts. See the lines above for what Substack answered.',
+          );
+        }
         for (const p of posts) {
           const id = `${lang}/${p.slug}`;
           const data = await parseData({
