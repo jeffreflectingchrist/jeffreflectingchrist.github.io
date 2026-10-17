@@ -1,6 +1,6 @@
 import type { Loader } from 'astro/loaders';
 import { XMLParser } from 'fast-xml-parser';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { SITE } from '../config';
 import { dropLeadingCover } from './dedupe';
 
@@ -17,6 +17,10 @@ interface Raw {
   tags: string[];
 }
 
+// What Substack answered during this build. It is written to .build-report.txt
+// and published by src/pages/build-report.txt.ts, so a missing post can be diagnosed.
+const REPORT: string[] = [];
+
 // Reads a web address. For local testing only: if SUBSTACK_MOCK_DIR is set,
 // it reads sample files from that folder instead of the internet.
 async function getText(url: string): Promise<string> {
@@ -25,8 +29,19 @@ async function getText(url: string): Promise<string> {
     const path = url.replace(/^https:\/\//, '').split('?')[0];
     return readFile(`${mock}/${path}`, 'utf8');
   }
-  const res = await fetch(url, { headers: { 'user-agent': 'jeffreflectingchrist-site-build' } });
-  if (!res.ok) throw new Error(`${url} answered ${res.status}`);
+  const res = await fetch(url, {
+    headers: {
+      // Some servers turn away requests that do not look like a normal browser.
+      'user-agent':
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+      accept: 'application/json,text/html,application/xml;q=0.9,*/*;q=0.8',
+      'accept-language': 'en-US,en;q=0.9',
+    },
+  });
+  if (!res.ok) {
+    const snippet = (await res.text().catch(() => '')).slice(0, 160).replace(/\s+/g, ' ');
+    throw new Error(`${url} answered ${res.status}: ${snippet}`);
+  }
   return res.text();
 }
 
@@ -133,6 +148,8 @@ export function substackLoader(): Loader {
     name: 'substack',
     load: async ({ store, parseData, generateDigest, logger }) => {
       store.clear();
+      REPORT.length = 0;
+      REPORT.push(`Substack build report, built ${new Date().toISOString()}`);
       for (const lang of ['zh', 'en'] as Lang[]) {
         const name = SITE.substack[lang];
         if (!name) continue;
@@ -152,13 +169,20 @@ export function substackLoader(): Loader {
         for (const [label, run] of routes) {
           try {
             posts = await run();
-            if (posts.length > 0) break;
+            if (posts.length > 0) {
+              REPORT.push(`${name} / ${label}: ${posts.length} post(s) found, used`);
+              break;
+            }
+            REPORT.push(`${name} / ${label}: answered, but 0 posts`);
             logger.warn(`${name}: ${label} had no posts; trying the next route.`);
           } catch (err) {
+            REPORT.push(`${name} / ${label}: FAILED - ${(err as Error).message}`);
             logger.warn(`${name}: ${label} unavailable (${(err as Error).message}); trying the next route.`);
           }
         }
         logger.info(`${name}: ${posts.length} post(s)`);
+        REPORT.push(`${name}: ${posts.length} post(s) on the site`);
+        await writeFile('.build-report.txt', REPORT.join('\n') + '\n').catch(() => {});
         for (const p of posts) {
           const id = `${lang}/${p.slug}`;
           const data = await parseData({
