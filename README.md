@@ -46,3 +46,12 @@ In the repo, go to Settings, then Pages, and set Source to GitHub Actions. The w
 npm install
 npm run dev
 ```
+
+## Substack copy page (translation helper)
+
+`public/tools/copy-page.html` is a single self-contained page for preparing a post for Substack without any other tool. After a deploy it is at `https://jeffreflectingchrist.pages.dev/tools/copy-page.html` (not linked from the site and marked noindex). It also works if you download the file and open it in a browser.
+
+- Tabs: English and 中文. Each has a Title box and a Post box with a Copy button; the copy keeps headings, bold, italics and images, so it pastes into the Substack editor with no Markdown symbols.
+- Click into the title or post to type or edit. Cmd/Ctrl+Z undoes. "Start new translation" clears the tab. "+ Add Bible passage box" adds a yellow paste box.
+- Yellow boxes: copy verses from esv.org (English) or YouVersion RCUVSS 和合本修订版 (Chinese) and paste into the box. Footnote marks are removed and verse numbers become small raised numerals.
+- Nothing is saved when the page is reloaded. Images must be pasted into the page's HTML (embedded); ask Claude, or add `<figure><img src="..."></figure>` yourself.
