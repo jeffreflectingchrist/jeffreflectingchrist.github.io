@@ -23,7 +23,7 @@ const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
 
   <div class="card">
     <h2>{lang === 'zh' ? '奉献支持' : 'Support'}</h2>
-    <p>{lang === 'zh' ? '若这些文字和工具帮助了你，欢迎支持我们。' : 'If this writing has helped you, you can support it here.'}</p>
+    <p>{lang === 'zh' ? '若这些资源对你有帮助，欢迎支持我们以便帮助更多人。' : 'If these resources have helped you, you can support it here to help them reach more people.'}</p>
     <a class="donate-link" href={lang === 'zh' ? '/donate/' : '/en/donate/'}>{lang === 'zh' ? '奉献 →' : 'Give →'}</a>
   </div>
 
