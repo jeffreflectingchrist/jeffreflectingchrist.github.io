@@ -95,9 +95,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .menu-panel a:last-child { border-bottom: 0; }
 [data-lang="zh"] .menu-panel a { font-weight: 300; font-size: 17px; letter-spacing: 0.3em; }
 [data-lang="en"] .menu-panel a { font-size: 13px; letter-spacing: 0.2em; }
-.menu-group { display: flex; flex-direction: column; border-bottom: 1px dotted var(--dot); }
+.menu-group { display: block; border-bottom: 1px dotted var(--dot); }
 .menu-group[open] { padding-bottom: 6px; }
-.menu-group-label { list-style: none; cursor: pointer; padding: 14px 0; font-family: var(--font-nav); color: var(--accent); }
+.menu-group-label { display: flex; align-items: center; gap: 6px; white-space: nowrap; list-style: none; cursor: pointer; padding: 14px 0; font-family: var(--font-nav); color: var(--accent); }
 [data-lang="zh"] .menu-group-label { font-weight: 400; font-size: 17px; letter-spacing: 0.3em; }
 [data-lang="en"] .menu-group-label { font-size: 13px; letter-spacing: 0.2em; }
 .menu-group-label::-webkit-details-marker { display: none; }
