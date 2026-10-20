@@ -34,7 +34,7 @@ const items = [
 
   <nav class="nav-full" aria-label={t.navLabel}>
     <div class="nav-drop">
-      <button class="nav-link nav-drop-btn" type="button" aria-haspopup="true"><span>{tools.label}</span> ▾</button>
+      <button class="nav-link nav-drop-btn" type="button" aria-haspopup="true"><span>{tools.label}</span><span class="nav-drop-caret" aria-hidden="true">▾</span></button>
       <div class="nav-drop-panel">
         {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
       </div>
@@ -77,7 +77,8 @@ const items = [
 
 <style>
   .nav-drop { position: relative; display: inline-block; }
-  .nav-drop-btn { background: none; border: none; font: inherit; color: inherit; cursor: pointer; }
+  .nav-drop-btn { background: none; color: inherit; cursor: pointer; line-height: inherit; }
+  .nav-drop-caret { font-size: 0.7em; margin-left: 4px; }
   .nav-drop-panel { display: none; position: absolute; top: 100%; left: 0; min-width: 200px; padding: 8px 0; background: var(--card, #FBF4E8); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; }
   .nav-drop:hover .nav-drop-panel, .nav-drop:focus-within .nav-drop-panel { display: block; }
   .nav-drop-panel a { display: block; padding: 10px 16px; white-space: nowrap; text-decoration: none; color: inherit; }
