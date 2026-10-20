@@ -1,0 +1,112 @@
+---
+import { type Lang } from '../i18n';
+
+const LINKS = {
+  oneoff: 'https://buy.stripe.com/4gM9AUf7bh0QbRw1QXd7q00',
+  monthly: 'https://buy.stripe.com/cNicN65wB8uk5t8539d7q01',
+};
+const PORTAL = 'https://billing.stripe.com/p/login/4gM9AUf7bh0QbRw1QXd7q00';
+
+const { lang } = Astro.props as { lang: Lang };
+const T = {
+  zh: {
+    title: '奉献支持',
+    intro: `辉映基督致力于免费分享这些文章和工具（网站、app等），来帮助基督徒和同工。你愿意的话，可以通过这里奉献，支持幕后需要的费用（软件和硬件设备）。谢谢你的代祷与同行。
+
+你的每月支持将帮助本事工分两个阶段成长：
+第一阶段：每月 RM 150-250（软件）
+用于网站的运作与维护、网页应用的开发与测试，以及在 Google Play 商店试推出我们的应用。
+
+第二阶段：每月 RM 450-550（软件与设备）
+包括第一阶段的所有内容，并让我们有机会更新用于写作与建设本事工的电脑及设备。
+
+无论一次性或每月奉献，都能帮助我们更快迈向下一阶段。`,
+    question: '你想如何支持？',
+    oneoff: '一次支持', monthly: '每月支持',
+    oneoffNote: '金额由你决定。',
+    monthlyNote: '每月固定支持，帮助我们长远计划。你可以随时取消。',
+    button: '前往付款 →',
+    secure: '付款由 Stripe 安全处理，支持信用卡、借记卡及 Apple Pay。',
+    taxNote: '这是个人奉献，不能扣税。',
+    manageTitle: '管理付款',
+    manageText: '如果你已经设置了每月支持，可以随时自行取消。',
+    manageLink: '取消每月支持',
+    manageChange: '如要更改金额，只需先取消原有的每月支持，再重新设置新的每月支持即可。',
+  },
+  en: {
+    title: 'Support',
+       intro: `Jeff Reflecting Christ strives to freely distribute these articles and tools (webpage, apps etc). If you would like to support the costs (software and hardware), you can give through this page. Thank you for your prayers and partnership.
+
+Your monthly support helps this ministry grow in two stages:
+Stage 1: RM 150-250/month (software)
+Running and maintaining the website, developing and testing the web app, and a trial launch of our app on the Google Play Store.
+
+Stage 2: RM 450-550/month (software and hardware)
+Everything in Stage 1, plus the opportunity to upgrade the computer and equipment we use for writing and building this ministry.
+
+Every gift, one-off or monthly, brings us closer to the next stage.`,
+    question: 'How would you like to give?',
+    oneoff: 'One-off', monthly: 'Monthly',
+    oneoffNote: 'You choose the amount.',
+    monthlyNote: 'Regular monthly giving helps us plan ahead. You can cancel anytime.',
+    button: 'Continue to payment →',
+    secure: 'Payments are handled securely by Stripe. Cards and Apple Pay accepted.',
+    taxNote: 'Gifts are personal and not tax-deductible.',
+    manageTitle: 'Manage payments',
+    manageText: 'If you have already set up monthly support, you can cancel it yourself at any time.',
+    manageLink: 'Cancel monthly support',
+    manageChange: 'To change the amount, simply cancel your current monthly support and set up a new one.',
+  },
+}[lang];
+---
+<hr class="ds-divider" />
+<section id="support">
+  <h2 class="ds-title">{T.title}</h2>
+  <div class="prose"><p style="white-space: pre-line">{T.intro}</p></div>
+
+  <div class="give card">
+    <h3>{T.question}</h3>
+    <div class="give-choice" role="radiogroup" aria-label={T.question}>
+      <label><input type="radio" name="freq" value="oneoff" checked /> <span>{T.oneoff}</span></label>
+      <label><input type="radio" name="freq" value="monthly" /> <span>{T.monthly}</span></label>
+    </div>
+    <p class="give-note" data-for="oneoff">{T.oneoffNote}</p>
+    <p class="give-note" data-for="monthly" hidden>{T.monthlyNote}</p>
+    <a class="give-btn" id="give-btn" href={LINKS.oneoff} target="_blank" rel="noopener">{T.button}</a>
+    <p class="give-small">{T.secure}<br />{T.taxNote}</p>
+  </div>
+
+  <hr class="ds-divider" />
+  <div class="prose">
+    <h3>{T.manageTitle}</h3>
+    <p>{T.manageText} <a href={PORTAL} target="_blank" rel="noopener">{T.manageLink}</a></p>
+    <p>{T.manageChange}</p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ LINKS }}>
+  document.querySelectorAll('input[name="freq"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      var v = r.value;
+      document.getElementById('give-btn').href = LINKS[v];
+      document.querySelectorAll('.give-note').forEach(function (n) { n.hidden = n.dataset.for !== v; });
+    });
+  });
+</script>
+
+<style>
+  .ds-divider { border: none; border-top: 1px solid currentColor; opacity: 0.2; margin: 2.5rem 0; }
+  .ds-title { font-size: 1.6rem; margin: 0 0 1rem; }
+  .give { margin-top: 28px; padding: 28px 24px; border-radius: 18px; background: var(--card); text-align: center; }
+  .give h3 { margin: 0 0 18px; font-size: 1.2rem; }
+  .give-choice { display: inline-flex; border: 1px solid var(--ink); border-radius: 999px; padding: 4px; gap: 4px; font-family: var(--font-nav); }
+  .give-choice label { cursor: pointer; }
+  .give-choice input { position: absolute; opacity: 0; pointer-events: none; }
+  .give-choice span { display: block; padding: 10px 22px; border-radius: 999px; }
+  .give-choice input:checked + span { background: var(--btn-bg); color: var(--btn-fg); }
+  .give-choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .give-note { color: var(--muted); margin: 16px 0 20px; }
+  .give-btn { display: inline-block; background: var(--sun); color: #fff; padding: 14px 30px; border-radius: 999px; text-decoration: none; font-family: var(--font-nav); font-weight: 600; }
+  .give-btn:hover { color: #fff; filter: brightness(1.08); }
+  .give-small { margin-top: 18px; font-size: 0.85rem; color: var(--muted); }
+</style>

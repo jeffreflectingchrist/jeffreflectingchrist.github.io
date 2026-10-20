@@ -11,6 +11,12 @@ interface Props {
 const { lang, active = '', switchHref } = Astro.props;
 const t = ui[lang];
 const p = paths[lang];
+const tools = {
+  label: lang === 'zh' ? '工具' : 'TOOLS',
+  links: [
+    { label: lang === 'zh' ? '圣经每天灵修' : 'Daily Bible Devotion', href: 'https://devotion.rongyao-gloria.workers.dev/#today' },
+  ],
+};
 const items = [
   { key: 'devotions', label: t.nav.devotions, href: p.devotions },
   { key: 'articles', label: t.nav.articles, href: p.articles },
@@ -27,6 +33,12 @@ const items = [
   </a>
 
   <nav class="nav-full" aria-label={t.navLabel}>
+    <div class="nav-drop">
+      <button class="nav-link nav-drop-btn" type="button" aria-haspopup="true"><span>{tools.label}</span> ▾</button>
+      <div class="nav-drop-panel">
+        {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+      </div>
+    </div>
     {items.map((i) => (
       <a class:list={['nav-link', { active: active === i.key }]} href={i.href} aria-current={active === i.key ? 'page' : undefined}><span>{i.label}</span></a>
     ))}
@@ -44,6 +56,7 @@ const items = [
         </svg>
       </summary>
       <div class="menu-panel">
+        {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
         {items.map((i) => <a href={i.href}>{i.label}</a>)}
         <a class="menu-lang" href={switchHref} hreflang={t.otherHtmlLang} lang={t.otherHtmlLang}>{t.switchLabel}</a>
       </div>
@@ -61,3 +74,12 @@ const items = [
     });
   });
 </script>
+
+<style>
+  .nav-drop { position: relative; display: inline-block; }
+  .nav-drop-btn { background: none; border: none; font: inherit; color: inherit; cursor: pointer; }
+  .nav-drop-panel { display: none; position: absolute; top: 100%; left: 0; min-width: 200px; padding: 8px 0; background: var(--card, #FBF4E8); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; }
+  .nav-drop:hover .nav-drop-panel, .nav-drop:focus-within .nav-drop-panel { display: block; }
+  .nav-drop-panel a { display: block; padding: 10px 16px; white-space: nowrap; text-decoration: none; color: inherit; }
+  .nav-drop-panel a:hover { color: #D9772B; }
+</style>

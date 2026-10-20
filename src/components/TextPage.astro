@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import { ui, paths, type Lang } from '../i18n';
 import { SITE } from '../config';
 import SubscribeForm from './SubscribeForm.astro';
+import DonateSection from './DonateSection.astro';
 
 interface Props {
   lang: Lang;
@@ -57,6 +58,7 @@ if (kind === 'about') {
           )}
         </div>
       )}
+      {kind === 'subscribe' && <DonateSection lang={lang} />}
     </main>
   </div>
 </Base>
