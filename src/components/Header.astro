@@ -56,7 +56,10 @@ const items = [
         </svg>
       </summary>
       <div class="menu-panel">
-        {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+        <div class="menu-group">
+          <span class="menu-group-label">{tools.label} <span aria-hidden="true">▾</span></span>
+          {tools.links.map((l) => <a class="menu-sub" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+        </div>
         {items.map((i) => <a href={i.href}>{i.label}</a>)}
         <a class="menu-lang" href={switchHref} hreflang={t.otherHtmlLang} lang={t.otherHtmlLang}>{t.switchLabel}</a>
       </div>

@@ -95,6 +95,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .menu-panel a:last-child { border-bottom: 0; }
 [data-lang="zh"] .menu-panel a { font-weight: 300; font-size: 17px; letter-spacing: 0.3em; }
 [data-lang="en"] .menu-panel a { font-size: 13px; letter-spacing: 0.2em; }
+.menu-group { display: flex; flex-direction: column; border-bottom: 1px dotted var(--dot); padding-bottom: 6px; }
+.menu-group-label { padding: 14px 0 6px; font-family: var(--font-nav); color: var(--accent); }
+[data-lang="zh"] .menu-group-label { font-weight: 400; font-size: 17px; letter-spacing: 0.3em; }
+[data-lang="en"] .menu-group-label { font-size: 13px; letter-spacing: 0.2em; }
+.menu-group a.menu-sub { border-bottom: 0; padding: 8px 0 8px 14px; }
 .menu-panel a.menu-lang { font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif; font-weight: 300; font-size: 15px; letter-spacing: 0.08em; }
 
 /* Layout */
@@ -172,7 +177,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 
 @media (max-width: 860px) {
   .nav-full { display: none; }
-  .header-mobile { display: flex; }
+  .header-mobile { display: flex; flex: none; margin-right: -10px; }
+  .site-header { gap: 8px; }
+  .brand { min-width: 0; gap: 8px; }
+  .brand svg { width: 44px; }
+  [data-lang="en"] .brand-text { font-size: clamp(17px, 5vw, 24px); }
   .pad { padding-inline: 20px; }
   .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .h-title, [data-lang="en"] .h-title { font-size: 28px; }
