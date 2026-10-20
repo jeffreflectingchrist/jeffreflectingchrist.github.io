@@ -21,6 +21,12 @@ const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
     <SubscribeForm lang={lang} />
   </div>
 
+  <div class="card">
+    <h2>{lang === 'zh' ? '奉献支持' : 'Support'}</h2>
+    <p>{lang === 'zh' ? '若这些文字帮助了你，欢迎支持这份写作事工。' : 'If this writing has helped you, you can support it here.'}</p>
+    <a class="donate-link" href={lang === 'zh' ? '/donate/' : '/en/donate/'}>{lang === 'zh' ? '奉献 →' : 'Give →'}</a>
+  </div>
+
   {latest.length > 0 && (
     <div class="card latest">
       <span class="card-label">{t.latest}</span>
@@ -28,3 +34,8 @@ const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
     </div>
   )}
 </aside>
+
+<style>
+  .donate-link { display:inline-block; margin-top:6px; background: var(--sun); color:#fff; padding:9px 20px; border-radius:999px; text-decoration:none; font-family: var(--font-nav); }
+  .donate-link:hover { color:#fff; filter:brightness(1.08); }
+</style>
