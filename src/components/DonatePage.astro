@@ -15,7 +15,7 @@ const T = {
     intro: `辉映基督致力于免费分享这些文章和工具（网站、app等），来帮助基督徒和同工。你愿意的话，可以通过这里奉献，支持幕后需要的费用（软件和硬件设备）。谢谢你的代祷与同行。
 
 你的每月支持将帮助本事工分两个阶段成长：
-第一阶段：每月 RM 150-200（软件）
+第一阶段：每月 RM 150-250（软件）
 用于网站的运作与维护、网页应用的开发与测试，以及在 Google Play 商店试推出我们的应用。
 
 第二阶段：每月 RM 450-550（软件与设备）
@@ -29,6 +29,10 @@ const T = {
     button: '前往付款 →',
     secure: '付款由 Stripe 安全处理，支持信用卡、借记卡及 Apple Pay。',
     taxNote: '这是个人奉献，不能扣税。',
+    manageTitle: '管理付款',
+    manageText: '如果你已经设置了每月支持，可以随时自行取消。',
+    manageLink: '取消每月支持',
+    manageChange: '如要更改金额，只需先取消原有的每月支持，再重新设置新的每月支持即可。',
   },
   en: {
     title: 'Support',
@@ -49,8 +53,13 @@ Every gift, one-off or monthly, brings us closer to the next stage.`,
     button: 'Continue to payment →',
     secure: 'Payments are handled securely by Stripe. Cards and Apple Pay accepted.',
     taxNote: 'Gifts are personal and not tax-deductible.',
+    manageTitle: 'Manage payments',
+    manageText: 'If you have already set up monthly support, you can cancel it yourself at any time.',
+    manageLink: 'Cancel monthly support',
+    manageChange: 'To change the amount, simply cancel your current monthly support and set up a new one.',
   },
 }[lang];
+const PORTAL = 'https://billing.stripe.com/p/login/4gM9AUf7bh0QbRw1QXd7q00';
 const here = lang === 'zh' ? '/donate/' : '/en/donate/';
 const there = lang === 'zh' ? '/en/donate/' : '/donate/';
 ---
@@ -72,6 +81,12 @@ const there = lang === 'zh' ? '/en/donate/' : '/donate/';
         <a class="give-btn" id="give-btn" href={LINKS.oneoff} target="_blank" rel="noopener">{T.button}</a>
         <p class="give-small">{T.secure}<br />{T.taxNote}</p>
       </section>
+        <hr style="border: none; border-top: 1px solid currentColor; opacity: 0.2; margin: 2.5rem 0;" />
+        <section class="prose">
+          <h2>{T.manageTitle}</h2>
+          <p>{T.manageText} <a href={PORTAL} target="_blank" rel="noopener">{T.manageLink}</a></p>
+          <p>{T.manageChange}</p>
+        </section>
     </main>
   </div>
 </Base>
