@@ -1,7 +1,7 @@
 ---
 import Illustration from './Illustration.astro';
 import { ui, paths, formatDate, type Lang } from '../i18n';
-import { slugOf, readMinutes, type Post } from '../lib/posts';
+import { slugOf, readMinutes, topicName, type Post } from '../lib/posts';
 
 interface Props {
   post: Post;
@@ -11,7 +11,7 @@ const { post, lang } = Astro.props;
 const t = ui[lang];
 const href = paths[lang].post(slugOf(post));
 const mins = readMinutes(post.body ?? '', lang);
-const cover = post.data.cover;
+const cover = post.cover;
 ---
 <article class="entry">
   <div class="tl">
@@ -19,10 +19,10 @@ const cover = post.data.cover;
     <div class="tl-line"></div>
   </div>
   <div class="entry-body">
-    <h2 class="h-title"><a href={href}>{post.data.title}</a></h2>
+    <h2 class="h-title"><a href={href}>{post.title}</a></h2>
     <div class="meta">
-      <span class="pill">{formatDate(post.data.date, lang)}</span>
-      <span class="chip">{t.categories[post.data.category]}</span>
+      <span class="pill">{formatDate(post.date, lang)}</span>
+      {post.topic ? <a class="chip" href={paths[lang].topic(post.topic.id)}>{topicName(post.topic, lang)}</a> : <span class="chip">{t.article}</span>}
       <span class="readtime">{t.readTime(mins)}</span>
     </div>
     {cover && (
@@ -30,7 +30,7 @@ const cover = post.data.cover;
         {cover === 'illustration' ? <Illustration /> : <img src={cover} alt="" loading="lazy" />}
       </div>
     )}
-    <p class="excerpt">{post.data.summary}</p>
+    <p class="excerpt">{post.summary}</p>
     <a class="read-more" href={href}>{t.readMore}</a>
   </div>
 </article>

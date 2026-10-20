@@ -9,8 +9,9 @@ Write and publish in Substack. The site reads both Substacks and shows the posts
 - Chinese posts: `huiyingjidu.substack.com` (shown at `/`)
 - English posts: `jeffreflectingchrist.substack.com` (shown at `/en/`)
 
-In Substack, add a tag to choose the category: `灵修` or `文章` (Chinese), `devotion` or `article` (English).
-A post with no matching tag is shown under Articles. Free posts only; paid posts are skipped.
+All posts are Articles (the Devotions section was removed on 2026-10-21; old /devotions links redirect to /articles).
+To put a Substack post in a category, give it a Substack tag with the same name as the category (Chinese or English name).
+Free posts only; paid posts are skipped.
 The two languages are separate and are not linked as translations.
 
 New posts appear on the site a few minutes after you publish them in Substack.
@@ -24,11 +25,26 @@ How that works (and why):
 Cloudflare Pages also needs a deploy hook: in Cloudflare Pages, Settings, Builds, add a deploy hook,
 then in GitHub (repo Settings, Secrets and variables, Actions) save its address as `CLOUDFLARE_DEPLOY_HOOK`.
 
+## Admin (Pages CMS)
+
+Go to https://jeffreflectingchrist.pages.dev/admin (it forwards to https://app.pagescms.org) and sign in with GitHub.
+The admin is set up by `.pages.yml`. In it you can:
+
+- write, edit and delete articles (中文文章 / English articles), with a cover picture, category and Draft switch;
+- make categories (文章类别). Each category appears under the Articles menu and gets its own page at `/articles/<english-name>/`;
+- edit both About pages;
+- edit the menu names, welcome note, sidebar text and the Tools menu links (网站文字 Site text & menus).
+
+Every save is a GitHub commit, so Cloudflare rebuilds the site (2-4 minutes). Pictures go to `public/images/uploads`.
+Files: articles `src/content/articles/zh|en/*.md`, categories `src/content/categories/*.json`, site text `src/data/site.json`.
+Substack posts are not in the admin; edit those on Substack. Both kinds show together on the site.
+
 ## Settings
 
 - `src/config.ts`: the two Substack names, the tag names, and the contact email.
 - `src/content/pages/zh/about.md` and `src/content/pages/en/about.md`: the About pages.
-- `src/i18n.ts`: menu words, welcome note and other fixed text for both languages.
+- `src/data/site.json`: menu words, welcome note, sidebar text, Tools menu (edited in the admin).
+- `src/i18n.ts`: fallback text used when a box in site.json is empty.
 
 ## Cloudflare Pages build settings
 

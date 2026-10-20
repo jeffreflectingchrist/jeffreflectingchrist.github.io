@@ -8,9 +8,9 @@ export async function GET(context) {
     description: '圣经灵修与文章，写给在日常中寻求神的人。',
     site: context.site,
     items: posts.map((p) => ({
-      title: p.data.title,
-      pubDate: p.data.date,
-      description: p.data.summary,
+      title: p.title,
+      pubDate: p.date,
+      description: p.summary,
       link: `/posts/${slugOf(p)}/`,
     })),
     customData: '<language>zh-cn</language>',

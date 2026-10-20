@@ -1,0 +1,159 @@
+# Admin (Pages CMS): https://app.pagescms.org  (or jeffreflectingchrist.pages.dev/admin)
+# Every save here becomes a GitHub commit, and Cloudflare rebuilds the site (2-4 minutes).
+
+media:
+  input: public/images/uploads
+  output: /images/uploads
+  categories: [image]
+
+content:
+  - name: articles-zh
+    label: 中文文章
+    description: 在网站上写的中文文章。Substack 的文章不在这里，请在 Substack 编辑。
+    type: collection
+    path: src/content/articles/zh
+    filename: "{year}-{month}-{day}-{hour}{minute}{second}.md"
+    exclude: [.gitkeep]
+    view:
+      fields: [title, date, category, draft]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields: &articleFields
+      - name: title
+        label: 标题 Title
+        type: string
+        required: true
+      - name: date
+        label: 日期 Date
+        type: date
+        required: true
+      - name: category
+        label: 类别 Category
+        description: 先在「文章类别」里建立类别，再在这里选择。
+        type: reference
+        options:
+          collection: categories
+          search: name_en, name_zh
+          value: "{path}"
+          label: "{name_zh} {name_en}"
+      - name: summary
+        label: 摘要 Summary
+        description: 可留空，网站会自动用文章开头。
+        type: text
+      - name: cover
+        label: 封面图 Cover image
+        type: image
+      - name: draft
+        label: 草稿（勾选后不在网站显示）Draft (hidden)
+        type: boolean
+        default: false
+      - name: body
+        label: 内容 Content
+        type: rich-text
+
+  - name: articles-en
+    label: English articles
+    description: Articles written on the website. Substack posts are not here; edit them on Substack.
+    type: collection
+    path: src/content/articles/en
+    filename: "{year}-{month}-{day}-{primary}.md"
+    exclude: [.gitkeep]
+    view:
+      fields: [title, date, category, draft]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+    fields: *articleFields
+
+  - name: categories
+    label: 文章类别 Categories
+    description: 每个类别会出现在「文章」下拉菜单里。Each category appears in the Articles dropdown.
+    type: collection
+    path: src/content/categories
+    format: json
+    filename: "{name_en}.json"
+    exclude: [.gitkeep]
+    view:
+      fields: [name_zh, name_en, show, order]
+      primary: name_en
+    fields:
+      - name: name_zh
+        label: 中文名称
+        type: string
+      - name: name_en
+        label: English name (also used for the web address)
+        type: string
+        required: true
+      - name: show
+        label: 显示在 Show on
+        type: select
+        default: both
+        options:
+          values:
+            - { value: both, label: "中文 + English" }
+            - { value: zh, label: "只有中文 Chinese only" }
+            - { value: en, label: "English only" }
+      - name: order
+        label: 排序 Order (small number = first)
+        type: number
+        default: 100
+
+  - name: about-zh
+    label: 关于（中文）
+    type: file
+    path: src/content/pages/zh/about.md
+    fields:
+      - { name: title, label: 标题, type: string, required: true }
+      - { name: body, label: 内容, type: rich-text }
+
+  - name: about-en
+    label: About (English)
+    type: file
+    path: src/content/pages/en/about.md
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: body, label: Content, type: rich-text }
+
+  - name: site
+    label: 网站文字 Site text & menus
+    description: 菜单名称、欢迎语、侧栏文字、工具菜单。留空会用默认文字。
+    type: file
+    path: src/data/site.json
+    format: json
+    fields:
+      - name: zh
+        label: 中文
+        type: object
+        fields: &siteFields
+          - { name: siteName, label: 网站名称 Site name, type: string }
+          - { name: tagline, label: 标语 Tagline, type: string }
+          - { name: description, label: 网站简介（搜索引擎）Description, type: text }
+          - { name: welcome, label: 欢迎语 Welcome note, type: text }
+          - { name: author, label: 署名 Signature, type: string }
+          - { name: menuTools, label: 菜单：工具 Menu Tools, type: string }
+          - { name: menuArticles, label: 菜单：文章 Menu Articles, type: string }
+          - { name: menuAbout, label: 菜单：关于 Menu About, type: string }
+          - { name: menuSubscribe, label: 菜单：订阅 Menu Subscribe, type: string }
+          - { name: allArticles, label: 「全部文章」All articles, type: string }
+          - { name: latest, label: 侧栏「最新文章」Latest label, type: string }
+          - { name: subscribeTitle, label: 订阅标题 Subscribe title, type: string }
+          - { name: subscribeBlurb, label: 订阅说明 Subscribe text, type: text }
+          - { name: supportTitle, label: 奉献标题 Support title, type: string }
+          - { name: supportText, label: 奉献说明 Support text, type: text }
+          - { name: supportButton, label: 奉献按钮 Support button, type: string }
+          - name: tools
+            label: 工具菜单链接 Tools menu links
+            type: object
+            list: true
+            fields:
+              - { name: label, label: 名称 Name, type: string }
+              - { name: url, label: 网址 Link, type: string }
+      - name: en
+        label: English
+        type: object
+        fields: *siteFields

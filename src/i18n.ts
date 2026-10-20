@@ -1,7 +1,10 @@
-export type Lang = 'zh' | 'en';
-export type Category = 'devotion' | 'article';
+import settings from './data/site.json';
 
-export const ui = {
+export type Lang = 'zh' | 'en';
+
+// Wording that the owner can change in the admin lives in src/data/site.json.
+// The fixed words below are used when a setting is missing.
+const base = {
   zh: {
     siteName: '辉映基督',
     tagline: '默想基督的荣耀，反映基督的光辉',
@@ -9,14 +12,12 @@ export const ui = {
     htmlLang: 'zh-Hans',
     otherHtmlLang: 'en',
     navLabel: '主导航',
-    nav: { devotions: '灵修', articles: '文章', about: '关于', subscribe: '订阅' },
     switchLabel: 'English',
     menu: '菜单',
     themeToggle: '切换明暗模式',
-    latest: '最新灵修',
     readMore: '继续阅读 →',
     readTime: (n: number) => `${n} 分钟阅读`,
-    welcome: '欢迎来到辉映基督。这里的默想是为你而写，愿你在日常生活中反映基督的荣耀.',
+    welcome: '欢迎来到辉映基督。这里的默想是为你而写，愿你在日常生活中反映基督的荣耀。',
     author: '杰辉',
     subscribeTitle: '订阅',
     subscribeBlurb: '新的灵修与文章发布时，寄到你的邮箱。',
@@ -25,10 +26,19 @@ export const ui = {
     emailPlaceholder: '你的邮箱',
     contactTitle: '联系',
     contactBlurb: '有问题，或想交流，欢迎来信。',
-    categories: { devotion: '灵修', article: '文章' },
-    backTo: { devotion: '← 返回灵修', article: '← 返回文章' },
+    article: '文章',
+    allArticles: '全部文章',
+    latest: '最新文章',
+    backTo: '← 返回文章',
     empty: '这里还没有内容。',
-    copyright: '© 辉映基督',
+    supportTitle: '奉献支持',
+    supportText: '若这些资源对你有帮助，欢迎支持我们以便帮助更多人。',
+    supportButton: '奉献 →',
+    menuTools: '工具',
+    menuArticles: '文章',
+    menuAbout: '关于',
+    menuSubscribe: '订阅',
+    tools: [] as { label: string; url: string }[],
   },
   en: {
     siteName: 'Jeff Reflecting Christ',
@@ -37,11 +47,9 @@ export const ui = {
     htmlLang: 'en',
     otherHtmlLang: 'zh-Hans',
     navLabel: 'Main navigation',
-    nav: { devotions: 'DEVOTIONS', articles: 'ARTICLES', about: 'ABOUT', subscribe: 'SUBSCRIBE' },
     switchLabel: '中文',
     menu: 'Menu',
     themeToggle: 'Toggle light and dark mode',
-    latest: 'Latest devotions',
     readMore: 'Continue reading →',
     readTime: (n: number) => `${n} min read`,
     welcome:
@@ -54,18 +62,45 @@ export const ui = {
     emailPlaceholder: 'Your email',
     contactTitle: 'Contact',
     contactBlurb: 'Questions, or just want to talk? Write to me.',
-    categories: { devotion: 'Devotions', article: 'Articles' },
-    backTo: { devotion: '← Back to devotions', article: '← Back to articles' },
+    article: 'Article',
+    allArticles: 'All articles',
+    latest: 'Latest articles',
+    backTo: '← Back to articles',
     empty: 'Nothing here yet.',
-    copyright: '© Jeff Reflecting Christ',
+    supportTitle: 'Support',
+    supportText: 'If these resources have helped you, you can support it here to help them reach more people.',
+    supportButton: 'Give →',
+    menuTools: 'TOOLS',
+    menuArticles: 'ARTICLES',
+    menuAbout: 'ABOUT',
+    menuSubscribe: 'SUBSCRIBE',
+    tools: [] as { label: string; url: string }[],
   },
+};
+
+// Empty boxes in the admin fall back to the fixed words above.
+function merge<T extends Record<string, any>>(fixed: T, edited: Record<string, any> = {}): T {
+  const out: Record<string, any> = { ...fixed };
+  for (const [k, v] of Object.entries(edited)) {
+    if (Array.isArray(v)) out[k] = v.filter((x) => x && x.label && x.url);
+    else if (typeof v === 'string' && v.trim()) out[k] = v.trim();
+  }
+  return out as T;
+}
+
+const zh = merge(base.zh, (settings as any).zh);
+const en = merge(base.en, (settings as any).en);
+
+export const ui = {
+  zh: { ...zh, copyright: `© ${zh.siteName}` },
+  en: { ...en, copyright: `© ${en.siteName}` },
 };
 
 export const paths = {
   zh: {
     home: '/',
-    devotions: '/devotions/',
     articles: '/articles/',
+    topic: (id: string) => `/articles/${id}/`,
     about: '/about/',
     subscribe: '/subscribe/',
     post: (slug: string) => `/posts/${slug}/`,
@@ -73,8 +108,8 @@ export const paths = {
   },
   en: {
     home: '/en/',
-    devotions: '/en/devotions/',
     articles: '/en/articles/',
+    topic: (id: string) => `/en/articles/${id}/`,
     about: '/en/about/',
     subscribe: '/en/subscribe/',
     post: (slug: string) => `/en/posts/${slug}/`,

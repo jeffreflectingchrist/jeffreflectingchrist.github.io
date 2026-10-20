@@ -1,0 +1,8 @@
+# The Devotions section was removed (2026-10-21); old links go to Articles.
+/devotions /articles/ 301
+/devotions/* /articles/ 301
+/en/devotions /en/articles/ 301
+/en/devotions/* /en/articles/ 301
+# Shortcut to the admin (Pages CMS).
+/admin https://app.pagescms.org/jeffreflectingchrist/jeffreflectingchrist.github.io/main 302
+/admin/ https://app.pagescms.org/jeffreflectingchrist/jeffreflectingchrist.github.io/main 302

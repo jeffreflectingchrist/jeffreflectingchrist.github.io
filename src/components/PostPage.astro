@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Illustration from './Illustration.astro';
 import { ui, paths, formatDate, type Lang } from '../i18n';
-import { readMinutes, type Post } from '../lib/posts';
+import { readMinutes, topicName, type Post } from '../lib/posts';
 
 interface Props {
   lang: Lang;
@@ -13,26 +13,25 @@ interface Props {
 }
 const { lang, post, Content, switchHref, alternates } = Astro.props;
 const t = ui[lang];
-const cat = post.data.category;
-const listKey = cat === 'devotion' ? 'devotions' : 'articles';
-const cover = post.data.cover;
+const cover = post.cover;
+const back = post.topic ? paths[lang].topic(post.topic.id) : paths[lang].articles;
 const mins = readMinutes(post.body ?? '', lang);
 ---
 <Base
   lang={lang}
-  title={post.data.title}
-  description={post.data.summary}
-  active={listKey}
+  title={post.title}
+  description={post.summary}
+  active="articles"
   switchHref={switchHref}
   alternates={alternates}
   ogType="article"
 >
   <div class="pad">
     <article class="post-wrap">
-      <h1 class="h-title">{post.data.title}</h1>
+      <h1 class="h-title">{post.title}</h1>
       <div class="meta">
-        <span class="pill">{formatDate(post.data.date, lang)}</span>
-        <span class="chip">{t.categories[cat]}</span>
+        <span class="pill">{formatDate(post.date, lang)}</span>
+        {post.topic ? <a class="chip" href={back}>{topicName(post.topic, lang)}</a> : <span class="chip">{t.article}</span>}
         <span class="readtime">{t.readTime(mins)}</span>
       </div>
       {cover && (
@@ -41,7 +40,7 @@ const mins = readMinutes(post.body ?? '', lang);
         </div>
       )}
       <div class="prose"><Content /></div>
-      <a class="read-more" href={paths[lang][listKey]}>{t.backTo[cat]}</a>
+      <a class="read-more" href={back}>{post.topic ? `← ${topicName(post.topic, lang)}` : t.backTo}</a>
     </article>
   </div>
 </Base>

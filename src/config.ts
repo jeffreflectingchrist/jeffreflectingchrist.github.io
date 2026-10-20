@@ -8,12 +8,8 @@ export const SITE = {
     zh: 'huiyingjidu',            // huiyingjidu.substack.com
     en: 'jeffreflectingchrist',   // jeffreflectingchrist.substack.com
   },
-  // In Substack, add one of these tags to a post to choose its category.
-  // A post with none of these tags is shown under Articles.
-  tags: {
-    zh: { devotion: '灵修', article: '文章' },
-    en: { devotion: 'devotion', article: 'article' },
-  },
+  // Categories are made in the admin. A Substack post goes into a category when
+  // one of its Substack tags has the same name as the category.
   // Your contact email, for example 'hello@example.com'
   contactEmail: '',
   // Google Search Console ownership code: only the content="..." value of the

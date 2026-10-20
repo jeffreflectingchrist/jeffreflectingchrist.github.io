@@ -1,0 +1,11 @@
+---
+import ListPage from '../../components/ListPage.astro';
+import { getTopics } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const topics = await getTopics('zh');
+  return topics.map((topic) => ({ params: { topic: topic.id }, props: { topic } }));
+}
+const { topic } = Astro.props;
+---
+<ListPage lang="zh" list={topic} />

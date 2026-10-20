@@ -2,6 +2,7 @@
 import Logo from './Logo.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { ui, paths, type Lang } from '../i18n';
+import { getTopics, topicName } from '../lib/posts';
 
 interface Props {
   lang: Lang;
@@ -11,17 +12,13 @@ interface Props {
 const { lang, active = '', switchHref } = Astro.props;
 const t = ui[lang];
 const p = paths[lang];
-const tools = {
-  label: lang === 'zh' ? '工具' : 'TOOLS',
-  links: [
-    { label: lang === 'zh' ? '圣经每天灵修' : 'Daily Bible Devotion', href: 'https://devotion.rongyao-gloria.workers.dev/#today' },
-  ],
-};
+const tools = { label: t.menuTools, links: t.tools.map((l) => ({ label: l.label, href: l.url })) };
+// Articles menu: "All articles" plus each category made in the admin.
+const topics = (await getTopics(lang)).map((c) => ({ label: topicName(c, lang), href: p.topic(c.id) }));
+const articleLinks = [{ label: t.allArticles, href: p.articles }, ...topics];
 const items = [
-  { key: 'devotions', label: t.nav.devotions, href: p.devotions },
-  { key: 'articles', label: t.nav.articles, href: p.articles },
-  { key: 'about', label: t.nav.about, href: p.about },
-  { key: 'subscribe', label: t.nav.subscribe, href: p.subscribe },
+  { key: 'about', label: t.menuAbout, href: p.about },
+  { key: 'subscribe', label: t.menuSubscribe, href: p.subscribe },
 ];
 ---
 <header class="site-header pad">
@@ -33,12 +30,24 @@ const items = [
   </a>
 
   <nav class="nav-full" aria-label={t.navLabel}>
-    <div class="nav-drop">
-      <button class="nav-link nav-drop-btn" type="button" aria-haspopup="true"><span>{tools.label}</span><span class="nav-drop-caret" aria-hidden="true">▾</span></button>
-      <div class="nav-drop-panel">
-        {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+    {tools.links.length > 0 && (
+      <div class="nav-drop">
+        <button class="nav-link nav-drop-btn" type="button" aria-haspopup="true"><span>{tools.label}</span><span class="nav-drop-caret" aria-hidden="true">▾</span></button>
+        <div class="nav-drop-panel">
+          {tools.links.map((l) => <a href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+        </div>
       </div>
-    </div>
+    )}
+    {topics.length > 0 ? (
+      <div class="nav-drop">
+        <a class:list={['nav-link', 'nav-drop-btn', { active: active === 'articles' }]} href={p.articles} aria-haspopup="true"><span>{t.menuArticles}</span><span class="nav-drop-caret" aria-hidden="true">▾</span></a>
+        <div class="nav-drop-panel">
+          {articleLinks.map((l) => <a href={l.href}>{l.label}</a>)}
+        </div>
+      </div>
+    ) : (
+      <a class:list={['nav-link', { active: active === 'articles' }]} href={p.articles} aria-current={active === 'articles' ? 'page' : undefined}><span>{t.menuArticles}</span></a>
+    )}
     {items.map((i) => (
       <a class:list={['nav-link', { active: active === i.key }]} href={i.href} aria-current={active === i.key ? 'page' : undefined}><span>{i.label}</span></a>
     ))}
@@ -56,10 +65,20 @@ const items = [
         </svg>
       </summary>
       <div class="menu-panel">
-        <details class="menu-group">
-          <summary class="menu-group-label">{tools.label} <span class="menu-caret" aria-hidden="true">▾</span></summary>
-          {tools.links.map((l) => <a class="menu-sub" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
-        </details>
+        {tools.links.length > 0 && (
+          <details class="menu-group">
+            <summary class="menu-group-label">{tools.label} <span class="menu-caret" aria-hidden="true">▾</span></summary>
+            {tools.links.map((l) => <a class="menu-sub" href={l.href} target="_blank" rel="noopener">{l.label}</a>)}
+          </details>
+        )}
+        {topics.length > 0 ? (
+          <details class="menu-group">
+            <summary class="menu-group-label">{t.menuArticles} <span class="menu-caret" aria-hidden="true">▾</span></summary>
+            {articleLinks.map((l) => <a class="menu-sub" href={l.href}>{l.label}</a>)}
+          </details>
+        ) : (
+          <a href={p.articles}>{t.menuArticles}</a>
+        )}
         {items.map((i) => <a href={i.href}>{i.label}</a>)}
         <a class="menu-lang" href={switchHref} hreflang={t.otherHtmlLang} lang={t.otherHtmlLang}>{t.switchLabel}</a>
       </div>
@@ -80,7 +99,7 @@ const items = [
 
 <style>
   .nav-drop { position: relative; display: inline-block; }
-  .nav-drop-btn { background: none; color: inherit; cursor: pointer; line-height: inherit; }
+  .nav-drop-btn { display: inline-block; text-decoration: none; background: none; color: inherit; cursor: pointer; line-height: inherit; }
   .nav-drop-caret { font-size: 0.7em; margin-left: 4px; }
   .nav-drop-panel { display: none; position: absolute; top: 100%; left: 0; min-width: 200px; padding: 8px 0; background: var(--card, #FBF4E8); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 50; }
   .nav-drop:hover .nav-drop-panel, .nav-drop:focus-within .nav-drop-panel { display: block; }

@@ -8,9 +8,9 @@ export async function GET(context) {
     description: 'Bible devotions and articles for people seeking God in everyday life.',
     site: context.site,
     items: posts.map((p) => ({
-      title: p.data.title,
-      pubDate: p.data.date,
-      description: p.data.summary,
+      title: p.title,
+      pubDate: p.date,
+      description: p.summary,
       link: `/en/posts/${slugOf(p)}/`,
     })),
     customData: '<language>en</language>',

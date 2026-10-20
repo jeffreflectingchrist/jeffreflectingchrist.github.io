@@ -6,7 +6,7 @@ import { getPosts, slugOf } from '../lib/posts';
 const { lang } = Astro.props as { lang: Lang };
 const t = ui[lang];
 const p = paths[lang];
-const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
+const latest = (await getPosts(lang)).slice(0, 3);
 ---
 <aside class="aside">
   <div class="welcome">
@@ -22,15 +22,15 @@ const latest = (await getPosts(lang, 'devotion')).slice(0, 3);
   </div>
 
   <div class="card">
-    <h2>{lang === 'zh' ? '奉献支持' : 'Support'}</h2>
-    <p>{lang === 'zh' ? '若这些资源对你有帮助，欢迎支持我们以便帮助更多人。' : 'If these resources have helped you, you can support it here to help them reach more people.'}</p>
-    <a class="donate-link" href={lang === 'zh' ? '/donate/' : '/en/donate/'}>{lang === 'zh' ? '奉献 →' : 'Give →'}</a>
+    <h2>{t.supportTitle}</h2>
+    <p>{t.supportText}</p>
+    <a class="donate-link" href={lang === 'zh' ? '/donate/' : '/en/donate/'}>{t.supportButton}</a>
   </div>
 
   {latest.length > 0 && (
     <div class="card latest">
       <span class="card-label">{t.latest}</span>
-      {latest.map((post) => <a href={p.post(slugOf(post))}>{post.data.title}</a>)}
+      {latest.map((post) => <a href={p.post(slugOf(post))}>{post.title}</a>)}
     </div>
   )}
 </aside>

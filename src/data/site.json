@@ -1,0 +1,44 @@
+{
+  "zh": {
+    "siteName": "辉映基督",
+    "tagline": "默想基督的荣耀，反映基督的光辉",
+    "description": "圣经灵修与文章，写给在日常中寻求神的人。",
+    "welcome": "欢迎来到辉映基督。这里的默想是为你而写，愿你在日常生活中反映基督的荣耀。",
+    "author": "杰辉",
+    "menuTools": "工具",
+    "menuArticles": "文章",
+    "menuAbout": "关于",
+    "menuSubscribe": "订阅",
+    "allArticles": "全部文章",
+    "latest": "最新文章",
+    "subscribeTitle": "订阅",
+    "subscribeBlurb": "新的灵修与文章发布时，寄到你的邮箱。",
+    "supportTitle": "奉献支持",
+    "supportText": "若这些资源对你有帮助，欢迎支持我们以便帮助更多人。",
+    "supportButton": "奉献 →",
+    "tools": [
+      { "label": "圣经每天灵修", "url": "https://devotion.rongyao-gloria.workers.dev/#today" }
+    ]
+  },
+  "en": {
+    "siteName": "Jeff Reflecting Christ",
+    "tagline": "Reflecting on Christ to reflect Christ",
+    "description": "Bible devotions and articles for people seeking God in everyday life.",
+    "welcome": "Welcome to jeffreflectingchrist. These reflections are written for you as you seek to reflect Christ in everyday life.",
+    "author": "Jeff",
+    "menuTools": "TOOLS",
+    "menuArticles": "ARTICLES",
+    "menuAbout": "ABOUT",
+    "menuSubscribe": "SUBSCRIBE",
+    "allArticles": "All articles",
+    "latest": "Latest articles",
+    "subscribeTitle": "Subscribe",
+    "subscribeBlurb": "Get new devotions and articles by email.",
+    "supportTitle": "Support",
+    "supportText": "If these resources have helped you, you can support it here to help them reach more people.",
+    "supportButton": "Give →",
+    "tools": [
+      { "label": "Daily Bible Devotion", "url": "https://devotion.rongyao-gloria.workers.dev/#today" }
+    ]
+  }
+}

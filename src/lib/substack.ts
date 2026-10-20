@@ -5,7 +5,6 @@ import { SITE } from '../config';
 import { dropLeadingCover } from './dedupe';
 
 type Lang = 'zh' | 'en';
-type Category = 'devotion' | 'article';
 
 interface Raw {
   slug: string;
@@ -154,11 +153,6 @@ async function fromFeed(base: string, lang: Lang): Promise<Raw[]> {
     .filter((p) => p.slug && p.html);
 }
 
-export function categoryOf(tags: string[], lang: Lang): Category {
-  const have = tags.map((t) => t.trim().toLowerCase());
-  return have.includes(SITE.tags[lang].devotion.toLowerCase()) ? 'devotion' : 'article';
-}
-
 export function substackLoader(): Loader {
   return {
     name: 'substack',
@@ -216,7 +210,7 @@ export function substackLoader(): Loader {
             data: {
               title: p.title,
               date: p.date,
-              category: categoryOf(p.tags, lang),
+              tags: p.tags.map((t) => t.trim()).filter(Boolean),
               summary: summaryOf(p.summary, p.html, lang),
               cover: p.cover,
               draft: false,
