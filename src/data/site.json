@@ -17,7 +17,7 @@
     "supportText": "若这些资源对你有帮助，欢迎支持我们以便帮助更多人。",
     "supportButton": "奉献 →",
     "tools": [
-      { "label": "圣经每天灵修", "url": "https://devotion-ecc.pages.dev/#today" }
+      { "label": "圣经每天灵修", "url": "https://devotion-jc.pages.dev/#today" }
     ]
   },
   "en": {
@@ -38,7 +38,7 @@
     "supportText": "If these resources have helped you, you can support it here to help them reach more people.",
     "supportButton": "Give →",
     "tools": [
-      { "label": "Daily Bible Devotion", "url": "https://devotion-ecc.pages.dev/#today" }
+      { "label": "Daily Bible Devotion", "url": "https://devotion-jc.pages.dev/#today" }
     ]
   }
 }
