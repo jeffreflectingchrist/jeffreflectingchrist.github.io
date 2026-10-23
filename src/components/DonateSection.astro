@@ -1,22 +1,29 @@
 ---
 import { type Lang } from '../i18n';
 
+// Stripe payment links. To change a link, edit it here (used by both the
+// SUBSCRIBE page section and the /donate/ page).
 const LINKS = {
-  oneoff: 'https://buy.stripe.com/4gM9AUf7bh0QbRw1QXd7q00',
   monthly: 'https://buy.stripe.com/cNicN65wB8uk5t8539d7q01',
+  oneoff: 'https://buy.stripe.com/4gM9AUf7bh0QbRw1QXd7q00',
 };
 const PORTAL = 'https://billing.stripe.com/p/login/4gM9AUf7bh0QbRw1QXd7q00';
+const ADMIN_EMAIL = 'jeff.reflecting.christ@gmail.com';
 
-const { lang } = Astro.props as { lang: Lang };
+const { lang, standalone = false } = Astro.props as { lang: Lang; standalone?: boolean };
 const T = {
   zh: {
     title: '奉献支持',
-    intro: `辉映基督致力于免费分享这些文章和工具（网站、app等），来帮助基督徒和同工。你愿意的话，可以通过这里奉献，支持幕后需要的费用（网站运作、软件需要、硬件提升）。谢谢你的代祷与同行。
-无论一次性或每月奉献，都能帮助我们继续免费分享这些资源。`,
+    intro: [
+      '辉映基督致力于免费开发和分享这些资源。你愿意的话，可以通过这里奉献，支持幕后需要的费用（网站或网络应用维护、软件需要、工具开发、硬件提升）。谢谢你的代祷与同行。',
+      '每月奉献能帮助我们更好地计划，不过一次性的奉献也随时欢迎。',
+    ],
     question: '你想如何支持？',
-    oneoff: '一次支持', monthly: '每月支持',
-    oneoffNote: '金额由你决定。',
-    monthlyNote: '每月固定支持，帮助我们长远计划。你可以随时取消。',
+    monthly: '每月支持', oneoff: '一次支持', other: '其他方式',
+    amountNote: '金额由你决定。',
+    otherPlaceholder: `想以其他方式支持（例如转账、服事上的配搭）？请在这里写下你的想法，我们会回复你。你也可以直接写信到 ${ADMIN_EMAIL}`,
+    otherButton: '发送给管理员',
+    otherSubject: '辉映基督：其他支持方式',
     button: '前往付款 →',
     secure: '付款由 Stripe 安全处理，支持信用卡、借记卡及 Apple Pay。',
     taxNote: '这是个人奉献，不能扣税。',
@@ -27,12 +34,16 @@ const T = {
   },
   en: {
     title: 'Support',
-       intro: `Jeff Reflecting Christ strives to freely distribute these articles and tools (webpage, apps etc). If you would like to support the costs (webpage or webapp maintenance, software support, and hardware upgrade), you can give through this page. Thank you for your prayers and partnership.
-Every gift, one-off or monthly, allows us to continue sharing these resources freely.`,
+    intro: [
+      'Jeff Reflecting Christ strives to freely develop and distribute these resources. If you would like to support the costs (webpage or webapp maintenance, software support, tools development, and hardware upgrade), you can give through this page. Thank you for your prayers and partnership.',
+      'Donating monthly helps our planning, though one-off gifts are always welcomed.',
+    ],
     question: 'How would you like to give?',
-    oneoff: 'One-off', monthly: 'Monthly',
-    oneoffNote: 'You choose the amount.',
-    monthlyNote: 'Regular monthly giving helps us plan ahead. You can cancel anytime.',
+    monthly: 'Monthly', oneoff: 'One-off', other: 'Something else',
+    amountNote: 'You choose the amount.',
+    otherPlaceholder: `Would you like to support in another way (e.g. bank transfer, serving together)? Write your message here and we will get back to you. You can also email ${ADMIN_EMAIL}`,
+    otherButton: 'Send to the admins',
+    otherSubject: 'Jeff Reflecting Christ: another way to support',
     button: 'Continue to payment →',
     secure: 'Payments are handled securely by Stripe. Cards and Apple Pay accepted.',
     taxNote: 'Gifts are personal and not tax-deductible.',
@@ -42,22 +53,31 @@ Every gift, one-off or monthly, allows us to continue sharing these resources fr
     manageChange: 'To change the amount, simply cancel your current monthly support and set up a new one.',
   },
 }[lang];
+const MAIL = { to: ADMIN_EMAIL, subject: T.otherSubject };
 ---
-<hr class="ds-divider" />
+{!standalone && <hr class="ds-divider" />}
 <section id="support">
-  <h2 class="ds-title">{T.title}</h2>
-  <div class="prose"><p style="white-space: pre-line">{T.intro}</p></div>
+  {standalone ? <h1 class="h-title">{T.title}</h1> : <h2 class="ds-title">{T.title}</h2>}
+  <div class="prose">{T.intro.map((p) => <p>{p}</p>)}</div>
 
   <div class="give card">
     <h3>{T.question}</h3>
     <div class="give-choice" role="radiogroup" aria-label={T.question}>
-      <label><input type="radio" name="freq" value="oneoff" checked /> <span>{T.oneoff}</span></label>
-      <label><input type="radio" name="freq" value="monthly" /> <span>{T.monthly}</span></label>
+      <label><input type="radio" name="freq" value="monthly" checked /> <span>{T.monthly}</span></label>
+      <label><input type="radio" name="freq" value="oneoff" /> <span>{T.oneoff}</span></label>
+      <label><input type="radio" name="freq" value="other" /> <span>{T.other}</span></label>
     </div>
-    <p class="give-note" data-for="oneoff">{T.oneoffNote}</p>
-    <p class="give-note" data-for="monthly" hidden>{T.monthlyNote}</p>
-    <a class="give-btn" id="give-btn" href={LINKS.oneoff} target="_blank" rel="noopener">{T.button}</a>
-    <p class="give-small">{T.secure}<br />{T.taxNote}</p>
+
+    <div class="give-pane" data-for="pay">
+      <p class="give-note">{T.amountNote}</p>
+      <a class="give-btn" id="give-btn" href={LINKS.monthly} target="_blank" rel="noopener">{T.button}</a>
+      <p class="give-small">{T.secure}<br />{T.taxNote}</p>
+    </div>
+
+    <div class="give-pane" data-for="other" hidden>
+      <textarea id="give-msg" rows="5" placeholder={T.otherPlaceholder}></textarea>
+      <button type="button" class="give-btn" id="give-send">{T.otherButton}</button>
+    </div>
   </div>
 
   <hr class="ds-divider" />
@@ -68,13 +88,18 @@ Every gift, one-off or monthly, allows us to continue sharing these resources fr
   </div>
 </section>
 
-<script is:inline define:vars={{ LINKS }}>
+<script is:inline define:vars={{ LINKS, MAIL }}>
   document.querySelectorAll('input[name="freq"]').forEach(function (r) {
     r.addEventListener('change', function () {
-      var v = r.value;
-      document.getElementById('give-btn').href = LINKS[v];
-      document.querySelectorAll('.give-note').forEach(function (n) { n.hidden = n.dataset.for !== v; });
+      var v = r.value, pane = v === 'other' ? 'other' : 'pay';
+      if (LINKS[v]) document.getElementById('give-btn').href = LINKS[v];
+      document.querySelectorAll('.give-pane').forEach(function (n) { n.hidden = n.dataset.for !== pane; });
     });
+  });
+  document.getElementById('give-send').addEventListener('click', function () {
+    var msg = document.getElementById('give-msg').value.trim();
+    location.href = 'mailto:' + MAIL.to + '?subject=' + encodeURIComponent(MAIL.subject) +
+      (msg ? '&body=' + encodeURIComponent(msg) : '');
   });
 </script>
 
@@ -83,14 +108,16 @@ Every gift, one-off or monthly, allows us to continue sharing these resources fr
   .ds-title { font-size: 1.6rem; margin: 0 0 1rem; }
   .give { margin-top: 28px; padding: 28px 24px; border-radius: 18px; background: var(--card); text-align: center; }
   .give h3 { margin: 0 0 18px; font-size: 1.2rem; }
-  .give-choice { display: inline-flex; border: 1px solid var(--ink); border-radius: 999px; padding: 4px; gap: 4px; font-family: var(--font-nav); }
+  .give-choice { display: inline-flex; flex-wrap: wrap; justify-content: center; border: 1px solid var(--ink); border-radius: 999px; padding: 4px; gap: 4px; font-family: var(--font-nav); max-width: 100%; }
   .give-choice label { cursor: pointer; }
   .give-choice input { position: absolute; opacity: 0; pointer-events: none; }
-  .give-choice span { display: block; padding: 10px 22px; border-radius: 999px; }
+  .give-choice span { display: block; padding: 10px 20px; border-radius: 999px; white-space: nowrap; }
   .give-choice input:checked + span { background: var(--btn-bg); color: var(--btn-fg); }
   .give-choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
   .give-note { color: var(--muted); margin: 16px 0 20px; }
-  .give-btn { display: inline-block; background: var(--sun); color: #fff; padding: 14px 30px; border-radius: 999px; text-decoration: none; font-family: var(--font-nav); font-weight: 600; }
+  .give-btn { display: inline-block; background: var(--sun); color: #fff; padding: 14px 30px; border: none; border-radius: 999px; text-decoration: none; font-family: var(--font-nav); font-weight: 600; font-size: 1rem; cursor: pointer; }
   .give-btn:hover { color: #fff; filter: brightness(1.08); }
   .give-small { margin-top: 18px; font-size: 0.85rem; color: var(--muted); }
+  #give-msg { display: block; width: 100%; box-sizing: border-box; margin: 18px 0; padding: 12px 14px; border: 1px solid var(--ink); border-radius: 12px; background: transparent; color: inherit; font: inherit; resize: vertical; }
+  @media (max-width: 480px) { .give-choice span { padding: 8px 12px; } }
 </style>
