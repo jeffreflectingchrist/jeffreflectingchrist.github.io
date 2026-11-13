@@ -4,8 +4,10 @@
 // Needs, in Cloudflare Pages > Settings > Variables and Secrets (Production):
 //   STRIPE_SECRET_KEY  (type: Secret)  your Stripe secret key, sk_live_...
 
-// Smallest amount Stripe allows per currency (in the currency's main unit).
-const CURRENCIES = { myr: 2, sgd: 0.5, aud: 0.5 };
+// Smallest gift per currency, before any fee cover (in the currency's main unit).
+const CURRENCIES = { myr: 10, sgd: 10, aud: 10 };
+// Extra the donor can choose to add to cover Stripe's transaction costs.
+const FEE_COVER = 0.04;
 const MAX = 100000;
 
 // Frequency -> Stripe recurring setting (null = one-off).
@@ -36,6 +38,7 @@ export async function onRequestPost({ request, env }) {
   const currency = String(input.currency || '').toLowerCase();
   const freq = String(input.freq || '');
   const amount = Math.round(Number(input.amount) * 100) / 100;
+  const cover = input.cover === true;
   const lang = input.lang === 'en' ? 'en' : 'zh';
 
   if (!(currency in CURRENCIES)) return json({ error: 'currency' }, 400);
@@ -43,6 +46,10 @@ export async function onRequestPost({ request, env }) {
   if (!Number.isFinite(amount) || amount < CURRENCIES[currency] || amount > MAX) {
     return json({ error: 'amount', min: CURRENCIES[currency], max: MAX }, 400);
   }
+
+  // The total is worked out here, not trusted from the page.
+  const baseCents = Math.round(amount * 100);
+  const totalCents = cover ? Math.round(baseCents * (1 + FEE_COVER)) : baseCents;
 
   const origin = new URL(request.url).origin;
   const page = lang === 'en' ? '/en/donate/' : '/donate/';
@@ -55,7 +62,7 @@ export async function onRequestPost({ request, env }) {
   p.set('locale', lang === 'en' ? 'en' : 'zh');
   p.set('line_items[0][quantity]', '1');
   p.set('line_items[0][price_data][currency]', currency);
-  p.set('line_items[0][price_data][unit_amount]', String(Math.round(amount * 100)));
+  p.set('line_items[0][price_data][unit_amount]', String(totalCents));
   p.set('line_items[0][price_data][product]', PRODUCTS[freq]);
   if (recurring) {
     p.set('line_items[0][price_data][recurring][interval]', recurring.interval);
@@ -65,6 +72,13 @@ export async function onRequestPost({ request, env }) {
     p.set('customer_creation', 'always');
   }
   p.set('metadata[frequency]', freq);
+  p.set('metadata[gift_amount]', (baseCents / 100).toFixed(2));
+  p.set('metadata[covers_fees]', cover ? 'yes' : 'no');
+  if (recurring) {
+    p.set('subscription_data[metadata][frequency]', freq);
+    p.set('subscription_data[metadata][gift_amount]', (baseCents / 100).toFixed(2));
+    p.set('subscription_data[metadata][covers_fees]', cover ? 'yes' : 'no');
+  }
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
