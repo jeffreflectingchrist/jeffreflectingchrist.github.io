@@ -5,9 +5,9 @@ import { type Lang } from '../i18n';
 // for the currency, amount and frequency the donor picks. The currency list and
 // minimums must match CURRENCIES in functions/api/give.js.
 const CURRENCIES = [
-  { code: 'MYR', sym: 'RM', min: 2 },
-  { code: 'SGD', sym: 'S$', min: 0.5 },
-  { code: 'AUD', sym: 'A$', min: 0.5 },
+  { code: 'MYR', sym: 'RM', min: 10 },
+  { code: 'SGD', sym: 'S$', min: 10 },
+  { code: 'AUD', sym: 'A$', min: 10 },
 ];
 const PORTAL = 'https://billing.stripe.com/p/login/4gM9AUf7bh0QbRw1QXd7q00';
 const ADMIN_EMAIL = 'jeff.reflecting.christ@gmail.com';
@@ -23,7 +23,9 @@ const T = {
     question: '你想如何支持？',
     freqs: { monthly: '每月', quarterly: '每季', yearly: '每年', oneoff: '一次', other: '其他方式' },
     currency: '货币', amount: '金额',
-    min: '最低金额', 
+    min: '最低金额',
+    cover: '多加 4%，帮我们承担 Stripe 的手续费',
+    withFees: '（{base} + 手续费 {fee}）',
     every: { monthly: '每月', quarterly: '每三个月', yearly: '每年', oneoff: '一次' },
     otherPlaceholder: `想以其他方式支持（例如转账、服事上的配搭）？请在这里写下你的想法，我们会回复你。你也可以直接写信到 ${ADMIN_EMAIL}`,
     otherButton: '发送给管理员',
@@ -50,6 +52,8 @@ const T = {
     freqs: { monthly: 'Monthly', quarterly: 'Quarterly', yearly: 'Yearly', oneoff: 'One-off', other: 'Something else' },
     currency: 'Currency', amount: 'Amount',
     min: 'Minimum',
+    cover: 'Add 4% to cover Stripe’s transaction costs',
+    withFees: '({base} + {fee} for fees)',
     every: { monthly: 'every month', quarterly: 'every 3 months', yearly: 'every year', oneoff: 'once' },
     otherPlaceholder: `Would you like to support in another way (e.g. bank transfer, serving together)? Write your message here and we will get back to you. You can also email ${ADMIN_EMAIL}`,
     otherButton: 'Send to the admins',
@@ -68,7 +72,7 @@ const T = {
   },
 }[lang];
 const MAIL = { to: ADMIN_EMAIL, subject: T.otherSubject };
-const CFG = { lang, CURRENCIES, T: { button: T.button, loading: T.loading, errAmount: T.errAmount, errServer: T.errServer, every: T.every, min: T.min } };
+const CFG = { lang, CURRENCIES, T: { button: T.button, loading: T.loading, errAmount: T.errAmount, errServer: T.errServer, every: T.every, min: T.min, withFees: T.withFees }, FEE: 0.04 };
 const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const;
 ---
 {!standalone && <hr class="ds-divider" />}
@@ -98,6 +102,8 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
           <input id="give-amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="50" required />
         </label>
       </div>
+
+      <label class="give-cover"><input type="checkbox" id="give-cover" /> <span>{T.cover}</span></label>
       <p class="give-summary" id="give-summary" aria-live="polite"></p>
       <p class="give-error" id="give-error" role="alert" hidden></p>
       <button type="submit" class="give-btn" id="give-btn">{T.button}</button>
@@ -122,7 +128,7 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
   (function () {
     var $ = function (id) { return document.getElementById(id); };
     var cur = $('give-currency'), amt = $('give-amount'), sum = $('give-summary'),
-        err = $('give-error'), btn = $('give-btn');
+        err = $('give-error'), btn = $('give-btn'), cov = $('give-cover');
     var byCode = {}; CFG.CURRENCIES.forEach(function (c) { byCode[c.code] = c; });
 
     if (/[?&]thanks=1/.test(location.search)) $('give-thanks').hidden = false;
@@ -136,11 +142,20 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
 
     function freq() { return document.querySelector('input[name="freq"]:checked').value; }
     function fmt(c, n) { return c.sym + ' ' + n.toLocaleString(undefined, { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); }
+    // Same sum as the server: whole cents, then 4% on top, rounded to the cent.
+    function total(n) {
+      var cents = Math.round(n * 100);
+      return (cov.checked ? Math.round(cents * (1 + CFG.FEE)) : cents) / 100;
+    }
     function update() {
       var c = byCode[cur.value], n = parseFloat(amt.value), f = freq();
       err.hidden = true;
       if (f === 'other') return;
-      sum.textContent = n > 0 ? fmt(c, n) + ' ' + CFG.T.every[f] : CFG.T.min + ': ' + fmt(c, c.min);
+      if (!(n > 0)) { sum.textContent = CFG.T.min + ': ' + fmt(c, c.min); return; }
+      var t = total(n), extra = cov.checked
+        ? ' ' + CFG.T.withFees.replace('{base}', fmt(c, n)).replace('{fee}', fmt(c, Math.round((t - n) * 100) / 100))
+        : '';
+      sum.textContent = fmt(c, t) + ' ' + CFG.T.every[f] + extra;
     }
 
     document.querySelectorAll('input[name="freq"]').forEach(function (r) {
@@ -152,6 +167,7 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
     });
     cur.addEventListener('change', update);
     amt.addEventListener('input', update);
+    cov.addEventListener('change', update);
     update();
 
     function fail(msg) { err.textContent = msg; err.hidden = false; btn.disabled = false; btn.textContent = CFG.T.button; }
@@ -164,7 +180,7 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
       fetch('/api/give', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ currency: c.code, amount: n, freq: freq(), lang: CFG.lang }),
+        body: JSON.stringify({ currency: c.code, amount: n, cover: cov.checked, freq: freq(), lang: CFG.lang }),
       })
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function (d) {
@@ -205,6 +221,8 @@ const FREQ_KEYS = ['monthly', 'quarterly', 'yearly', 'oneoff', 'other'] as const
   .give-field select, .give-field input { font: inherit; font-size: 1.1rem; color: var(--ink); background: transparent; border: 1px solid var(--ink); border-radius: 12px; padding: 12px 14px; width: 100%; box-sizing: border-box; min-width: 0; }
   .give-field select:focus-visible, .give-field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .give-field select option { color: #000; }
+  .give-cover { display: inline-flex; align-items: center; gap: 8px; margin: 18px auto 0; cursor: pointer; font-size: 0.95rem; text-align: left; max-width: 360px; }
+  .give-cover input { width: 18px; height: 18px; accent-color: var(--sun); flex: none; margin: 0; }
   .give-summary { color: var(--muted); margin: 14px 0 18px; min-height: 1.5em; }
   .give-error { color: var(--accent); font-weight: 600; margin: -6px 0 16px; }
   .give-btn { display: inline-block; background: var(--sun); color: #fff; padding: 14px 30px; border: none; border-radius: 999px; text-decoration: none; font-family: var(--font-nav); font-weight: 600; font-size: 1rem; cursor: pointer; }
