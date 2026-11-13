@@ -71,3 +71,9 @@ npm run dev
 - Click into the title or post to type or edit. Cmd/Ctrl+Z undoes. "Start new translation" clears the tab. "+ Add Bible passage box" adds a yellow paste box.
 - Yellow boxes: copy verses from esv.org (English) or YouVersion RCUVSS 和合本修订版 (Chinese) and paste into the box. Footnote marks are removed and verse numbers become small raised numerals.
 - Nothing is saved when the page is reloaded. The page starts blank. Images cannot be pasted in; to include one, drag it into the Post box if your browser allows it, or add it directly in Substack after pasting.
+
+## Donations (Stripe)
+
+The donate section (`src/components/DonateSection.astro`) lets donors choose RM, SGD or AUD, any amount, and one-off, monthly, quarterly or yearly.
+The button calls `functions/api/give.js` (a Cloudflare Pages Function), which opens a Stripe checkout.
+It needs a Cloudflare secret named `STRIPE_SECRET_KEY` (a Stripe restricted key, rk_live_...). After changing the secret, redeploy.
